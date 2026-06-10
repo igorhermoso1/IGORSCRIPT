@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IGORSCRIPT Vol.7 ⚙️ Los Engranajes de JavaScript</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05050a;--surface:#0f0f17;--surface2:#171724;--surface3:#1f1f30;--border:#2a2a40;--accent:#f7c948;--accent2:#ff6b35;--accent3:#00d4aa;--accent4:#7c3aed;--danger:#ef4444;--text:#e8e8f0;--text2:#9090b0;--text3:#505070;--success:#00d4aa;--warning:#f7c948;--font-d:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;--font-c:'JetBrains Mono',monospace;--r:12px;--rlg:20px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-b);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--accent4);border-radius:3px}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:265px;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-logo{padding:16px 18px 12px;border-bottom:1px solid var(--border)}
+.sb-logo h1{font-family:var(--font-d);font-size:17px;font-weight:800;background:linear-gradient(135deg,var(--accent4),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sb-logo .sub{font-size:9px;color:var(--text3);font-family:var(--font-c);margin-top:2px}
+.sb-logo .tag{display:inline-block;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.35);color:#b794f6;font-size:9px;padding:2px 8px;border-radius:8px;font-family:var(--font-c);margin-top:4px}
+.prog-wrap{padding:10px 18px;border-bottom:1px solid var(--border)}
+.prog-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;font-family:var(--font-c)}
+.prog-track{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent4),var(--accent3));border-radius:3px;transition:width .5s}
+.sb-score{display:flex;gap:5px;padding:9px 14px;border-bottom:1px solid var(--border)}
+.sc-badge{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px;text-align:center}
+.sc-badge .val{font-family:var(--font-d);font-size:17px;font-weight:800;color:var(--accent)}
+.sc-badge .lbl{font-size:8px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px}
+.nav-sec{padding:9px 14px 3px}
+.nav-sec-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:4px;font-family:var(--font-c)}
+.nav-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:6px;cursor:pointer;transition:all .2s;color:var(--text2);font-size:11px;font-weight:500;margin-bottom:1px;border:1px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(124,58,237,.14);border-color:rgba(124,58,237,.3);color:var(--text)}
+.nav-item .icon{font-size:12px;flex-shrink:0}
+.nav-item .badge{margin-left:auto;font-size:8px;background:var(--surface3);padding:2px 5px;border-radius:7px;color:var(--text3);font-family:var(--font-c)}
+.nav-item.done .chk{display:block;margin-left:auto;color:var(--success);font-size:10px}
+.nav-item .chk{display:none}
+.nav-item.done .badge{display:none}
+#main{margin-left:265px;min-height:100vh;padding:32px 40px;max-width:calc(100vw - 265px)}
+.panel{display:none}.panel.active{display:block}
+.hero{min-height:48vh;display:flex;flex-direction:column;justify-content:center;padding:40px 0 24px}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-c);font-size:11px;color:#b794f6;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.25);padding:4px 12px;border-radius:18px;margin-bottom:16px;width:fit-content}
+.hero h2{font-family:var(--font-d);font-size:clamp(30px,5vw,50px);font-weight:800;line-height:1.1;letter-spacing:-2px;margin-bottom:12px}
+.hero h2 .y{background:linear-gradient(135deg,var(--accent4),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:14px;color:var(--text2);max-width:520px;line-height:1.7;margin-bottom:24px}
+.hero-stats{display:flex;gap:18px;flex-wrap:wrap}
+.stat .n{font-family:var(--font-d);font-size:26px;font-weight:800;color:var(--accent)}
+.stat .l{font-size:10px;color:var(--text3)}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:28px}
+.topic-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:20px;cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.topic-card::before{content:'';position:absolute;inset:0;background:var(--cc,var(--accent4));opacity:0;transition:opacity .25s}
+.topic-card:hover{border-color:var(--cc,var(--accent4));transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.topic-card:hover::before{opacity:.05}
+.card-icon{font-size:22px;margin-bottom:9px;display:block}
+.card-title{font-family:var(--font-d);font-size:14px;font-weight:700;margin-bottom:4px}
+.card-desc{font-size:11px;color:var(--text3);line-height:1.6}
+.card-meta{display:flex;align-items:center;gap:7px;margin-top:12px}
+.diff{font-size:9px;font-family:var(--font-c);padding:2px 6px;border-radius:7px;font-weight:600}
+.diff.b{background:rgba(0,212,170,.12);color:var(--success)}
+.diff.i{background:rgba(247,201,72,.12);color:var(--warning)}
+.diff.a{background:rgba(255,107,53,.12);color:var(--accent2)}
+.diff.x{background:rgba(124,58,237,.18);color:#b794f6}
+.card-exs{font-size:10px;color:var(--text3);margin-left:auto;font-family:var(--font-c)}
+.ex-hdr{margin-bottom:24px}
+.breadcrumb{font-size:11px;color:var(--text3);font-family:var(--font-c);margin-bottom:9px;cursor:pointer;transition:color .2s}
+.breadcrumb:hover{color:var(--text2)}
+.ex-title{font-family:var(--font-d);font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:5px}
+.ex-desc{font-size:13px;color:var(--text2);line-height:1.7;max-width:560px}
+.theory-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 20px;margin-bottom:18px;position:relative}
+.theory-box::before{content:'TEORÍA';position:absolute;top:-8px;left:14px;font-size:9px;font-family:var(--font-c);font-weight:700;letter-spacing:2px;background:var(--accent4);color:#fff;padding:2px 8px;border-radius:4px}
+.theory-box p,.theory-box li{font-size:12px;color:var(--text2);line-height:1.8}
+.theory-box code{font-family:var(--font-c);background:var(--surface3);padding:1px 5px;border-radius:3px;color:var(--accent3);font-size:11px}
+.theory-box ul{padding-left:14px}
+.theory-box strong{color:var(--text)}
+.tip-box{background:rgba(247,201,72,.05);border:1px solid rgba(247,201,72,.18);border-radius:var(--r);padding:12px 16px;margin:14px 0;position:relative}
+.tip-box::before{content:'💡 IGOR DICE';position:absolute;top:-8px;left:12px;font-size:9px;font-family:var(--font-c);font-weight:700;letter-spacing:1.5px;background:var(--accent);color:#000;padding:2px 8px;border-radius:4px}
+.tip-box p,.tip-box li{font-size:11px;color:rgba(247,201,72,.9);line-height:1.8}
+.tip-box ul{padding-left:13px}
+.curiosity-box{background:rgba(0,212,170,.05);border:1px solid rgba(0,212,170,.18);border-radius:var(--r);padding:12px 16px;margin:14px 0;position:relative}
+.curiosity-box::before{content:'🔍 DATO';position:absolute;top:-8px;left:12px;font-size:9px;font-family:var(--font-c);font-weight:700;letter-spacing:1.5px;background:var(--accent3);color:#000;padding:2px 8px;border-radius:4px}
+.curiosity-box p{font-size:11px;color:rgba(0,212,170,.9);line-height:1.8}
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rlg);padding:22px;margin-bottom:16px;transition:border-color .3s}
+.ex-card.correct{border-color:var(--success)}
+.ex-card.incorrect{border-color:var(--danger)}
+.ex-card h3{font-family:var(--font-d);font-size:13px;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.ex-num{background:var(--surface3);border:1px solid var(--border);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--font-c);color:var(--text3);flex-shrink:0}
+.ex-q{font-size:12px;color:var(--text2);line-height:1.7;margin:8px 0 12px}
+.ex-q code{font-family:var(--font-c);background:var(--surface3);padding:1px 5px;border-radius:3px;color:var(--accent3);font-size:11px}
+.cb{background:#0a0a12;border:1px solid var(--border);border-radius:8px;padding:13px 15px;font-family:var(--font-c);font-size:11.5px;line-height:1.85;overflow-x:auto;margin:10px 0;color:var(--text)}
+.cb .kw{color:#c792ea}.cb .str{color:#c3e88d}.cb .num{color:#f78c6c}.cb .cm{color:#546e7a}.cb .fn{color:#82aaff}.cb .var{color:#f7c948}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:12px 0}
+.opt{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;color:var(--text2);font-size:11.5px;cursor:pointer;text-align:left;transition:all .2s;font-family:var(--font-b)}
+.opt:hover{border-color:var(--accent4);color:var(--text)}
+.opt.selected{border-color:var(--accent4);background:rgba(124,58,237,.12);color:var(--text)}
+.opt code{font-family:var(--font-c);font-size:10.5px;color:var(--accent3)}
+.ctrl{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s;font-family:var(--font-b)}
+.btn-p{background:var(--accent4);color:#fff}.btn-p:hover{background:#8b5cf6;transform:translateY(-1px)}
+.btn-s{background:var(--surface3);color:var(--text2);border:1px solid var(--border)}.btn-s:hover{color:var(--text)}
+.hint-btn{background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;font-family:var(--font-c)}
+.hint-btn:hover{color:var(--warning)}
+.hint-txt{display:none;font-size:11px;color:var(--warning);background:rgba(247,201,72,.06);border-radius:6px;padding:8px 12px;margin-top:8px;line-height:1.6}
+.hint-txt.show{display:block}
+.feedback{display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:11.5px;align-items:flex-start;gap:8px;line-height:1.6}
+.feedback.show{display:flex}
+.feedback.success{background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.25);color:var(--success)}
+.feedback.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:var(--danger)}
+.feedback.warning{background:rgba(247,201,72,.08);border:1px solid rgba(247,201,72,.25);color:var(--warning)}
+.ci{background:#0a0a12;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-family:var(--font-c);font-size:11.5px;outline:none;transition:border-color .2s}
+.ci:focus{border-color:var(--accent4)}
+.ci-inline{background:#0a0a12;border:1px solid var(--accent4);border-radius:4px;padding:3px 6px;color:var(--accent);font-family:var(--font-c);font-size:11px;outline:none;width:90px}
+.fill-code{background:#0a0a12;border:1px solid var(--border);border-radius:8px;padding:13px 15px;font-family:var(--font-c);font-size:11.5px;line-height:2.3;margin:10px 0;color:var(--text)}
+.fill-code .kw{color:#c792ea}.fill-code .str{color:#c3e88d}.fill-code .num{color:#f78c6c}.fill-code .cm{color:#546e7a}.fill-code .fn{color:#82aaff}
+.console-out{background:#000;border:1px solid var(--border);border-radius:8px;padding:12px 15px;font-family:var(--font-c);font-size:11px;min-height:48px;max-height:240px;overflow-y:auto;margin:10px 0}
+.console-out .line{color:#c3e88d;line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.console-out .line.err{color:var(--danger)}
+.console-out .line.info{color:#82aaff}
+.code-editor{width:100%;background:#0a0a12;border:1px solid var(--border);border-radius:8px;padding:12px 15px;color:var(--text);font-family:var(--font-c);font-size:11.5px;line-height:1.7;min-height:130px;resize:vertical;outline:none;tab-size:2}
+.code-editor:focus{border-color:var(--accent4)}
+.toast{position:fixed;top:18px;right:18px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:9px;z-index:1000;transform:translateX(420px);transition:transform .35s;font-size:12px}
+.toast.show{transform:translateX(0)}
+.toast.success{border-color:var(--success)}.toast.error{border-color:var(--danger)}.toast.xp{border-color:var(--accent)}
+.xp-float{position:fixed;font-family:var(--font-d);font-size:19px;font-weight:800;color:var(--accent);z-index:1001;pointer-events:none;animation:xpf 1.3s ease-out forwards}
+@keyframes xpf{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-70px)}}
+.drag-area{display:flex;gap:7px;flex-wrap:wrap;background:var(--surface2);border:1.5px dashed var(--border);border-radius:9px;padding:10px;min-height:50px;transition:border-color .2s}
+.drag-area.over{border-color:var(--accent4)}
+.drag-item{background:var(--surface3);border:1px solid var(--border);border-radius:7px;padding:7px 12px;font-family:var(--font-c);font-size:10.5px;cursor:grab;user-select:none;transition:all .2s}
+.drag-item:active{cursor:grabbing}
+.drag-item.dragging{opacity:.4}
+/* EVENT LOOP VISUALIZER */
+.el-viz{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.el-zone{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px;min-height:90px}
+.el-zone h4{font-size:9px;font-family:var(--font-c);letter-spacing:1.5px;color:var(--text3);margin-bottom:8px;text-transform:uppercase}
+.el-zone.stack h4{color:#b794f6}.el-zone.micro h4{color:var(--accent3)}.el-zone.macro h4{color:var(--accent2)}.el-zone.out h4{color:var(--accent)}
+.el-task{background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-family:var(--font-c);font-size:10px;margin-bottom:5px;transition:all .3s;opacity:1}
+.el-task.active{border-color:var(--accent);background:rgba(247,201,72,.1);transform:scale(1.03)}
+.el-task.gone{opacity:0;transform:translateX(20px)}
+.bubble-demo{display:flex;align-items:center;justify-content:center;padding:24px;background:var(--surface2);border-radius:10px;margin:10px 0}
+.bub{border:2px solid var(--border);border-radius:12px;padding:22px;cursor:pointer;transition:all .2s;text-align:center;font-family:var(--font-c);font-size:10px;color:var(--text3)}
+.bub:hover{border-color:var(--accent4)}
+.bub.flash{border-color:var(--accent);background:rgba(247,201,72,.08)}
+@media(max-width:900px){#sidebar{transform:translateX(-100%);transition:transform .3s}#sidebar.open{transform:translateX(0)}#main{margin-left:0;max-width:100vw;padding:20px 16px}.menu-btn{display:flex!important}}
+.menu-btn{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--surface2);border:1px solid var(--border);border-radius:8px;width:38px;height:38px;align-items:center;justify-content:center;cursor:pointer;color:var(--text)}
+</style>
+</head>
+<body>
+<div class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</div>
+<div class="toast" id="toast"><span id="t-icon">✓</span><span id="t-msg"></span></div>
+<div id="sidebar">
+  <div class="sb-logo">
+    <h1>⚙️ IGORSCRIPT VOL.7</h1>
+    <div class="sub">// los engranajes de JavaScript</div>
+    <div class="tag">✦ Nivel Experto</div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-label"><span>Progreso Vol.7</span><span id="prog-pct">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <div class="sb-score">
+    <div class="sc-badge"><div class="val" id="total-ip">0</div><div class="lbl">XP Global</div></div>
+    <div class="sc-badge"><div class="val" id="total-done">0</div><div class="lbl">Hechos</div></div>
+    <div class="sc-badge"><div class="val" id="total-streak">0</div><div class="lbl">Racha</div></div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-sec-title">🏠 Inicio</div>
+    <div class="nav-item active" id="nav-home" onclick="showPanel('home')"><span class="icon">🏠</span>Dashboard</div>
+    <div class="nav-item" onclick="window.location.href='index.html'"><span class="icon">↩</span>Volver a IGORSCRIPT base</div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-sec-title">⚙️ El Motor de JS</div>
+    <div class="nav-item" id="nav-eventloop" onclick="showPanel('eventloop')"><span class="icon">🔄</span>Event Loop<span class="badge">5</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-protos" onclick="showPanel('protos')"><span class="icon">🧬</span>Prototipos<span class="badge">5</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-this" onclick="showPanel('this')"><span class="icon">🎯</span>this / call / bind<span class="badge">5</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-coercion" onclick="showPanel('coercion')"><span class="icon">⚖️</span>Coerción de tipos<span class="badge">5</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-memoria" onclick="showPanel('memoria')"><span class="icon">🧠</span>Memoria & Weak*<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-numeros" onclick="showPanel('numeros')"><span class="icon">🔢</span>Números & BigInt<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-recursion" onclick="showPanel('recursion')"><span class="icon">🌀</span>Recursión<span class="badge">4</span><span class="chk">✓</span></div>
+  </div>
+  <div class="nav-sec">
+    <div class="nav-sec-title">🛰 APIs Modernas</div>
+    <div class="nav-item" id="nav-eventos" onclick="showPanel('eventos')"><span class="icon">🫧</span>Eventos avanzados<span class="badge">5</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-abort" onclick="showPanel('abort')"><span class="icon">⏱</span>AbortController<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-clone" onclick="showPanel('clone')"><span class="icon">🧪</span>structuredClone & JSON<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-fetchpro" onclick="showPanel('fetchpro')"><span class="icon">📡</span>Fetch avanzado<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-observers" onclick="showPanel('observers')"><span class="icon">👁</span>Observers<span class="badge">3</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-seguridad" onclick="showPanel('seguridad')"><span class="icon">🛡</span>Seguridad & XSS<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-intl" onclick="showPanel('intl')"><span class="icon">🌍</span>Intl & ES2022+<span class="badge">4</span><span class="chk">✓</span></div>
+    <div class="nav-item" id="nav-a11y" onclick="showPanel('a11y')"><span class="icon">♿</span>Accesibilidad JS<span class="badge">3</span><span class="chk">✓</span></div>
+  </div>
+  <div style="padding:14px;margin-top:auto;font-size:9px;color:var(--text3);font-family:var(--font-c)">IGORSCRIPT Vol.7 · 63 ejercicios<br>Progreso compartido (igor_progress_v4)</div>
+</div>
+
+<div id="main">
+
+<!-- ============ HOME ============ -->
+<div class="panel active" id="panel-home">
+  <div class="hero">
+    <div class="hero-tag">⚙️ Volumen 7 — Los Engranajes de JavaScript</div>
+    <h2>Lo que pasa <span class="y">bajo el capó</span></h2>
+    <p>Hasta ahora has aprendido a usar JavaScript. En este volumen aprendes cómo funciona por dentro: el event loop, los prototipos, la coerción, la memoria... y las APIs modernas que separan a un dev intermedio de un experto. Ningún tema de este volumen está en los volúmenes anteriores.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="n">63</div><div class="l">Ejercicios</div></div>
+      <div class="stat"><div class="n">15</div><div class="l">Módulos nuevos</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">Visualizadores en vivo</div></div>
+    </div>
+  </div>
+  <div style="font-family:var(--font-d);font-size:16px;font-weight:700;margin-bottom:4px">📚 Módulos del motor</div>
+  <div style="font-size:11px;color:var(--text3)">Conceptos internos que ningún otro volumen cubre</div>
+  <div class="cards-grid">
+    <div class="topic-card" style="--cc:#7c3aed" onclick="showPanel('eventloop')"><span class="card-icon">🔄</span><div class="card-title">Event Loop</div><div class="card-desc">Call stack, microtareas, macrotareas. Con visualizador animado.</div><div class="card-meta"><span class="diff x">Experto</span><span class="card-exs">5 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#00d4aa" onclick="showPanel('protos')"><span class="card-icon">🧬</span><div class="card-title">Prototipos</div><div class="card-desc">La herencia real de JS: prototype chain, Object.create, instanceof.</div><div class="card-meta"><span class="diff x">Experto</span><span class="card-exs">5 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#f7c948" onclick="showPanel('this')"><span class="card-icon">🎯</span><div class="card-title">this, call, apply, bind</div><div class="card-desc">Las 4 reglas de this y cómo controlarlo manualmente.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">5 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#ff6b35" onclick="showPanel('coercion')"><span class="card-icon">⚖️</span><div class="card-title">Coerción de tipos</div><div class="card-desc">== vs ===, truthy/falsy, Object.is, los misterios de NaN.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">5 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#82aaff" onclick="showPanel('memoria')"><span class="card-icon">🧠</span><div class="card-title">Memoria & WeakMap</div><div class="card-desc">Garbage collector, memory leaks, WeakMap, WeakSet, WeakRef.</div><div class="card-meta"><span class="diff x">Experto</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#c792ea" onclick="showPanel('numeros')"><span class="card-icon">🔢</span><div class="card-title">Números & BigInt</div><div class="card-desc">Por qué 0.1+0.2 !== 0.3, IEEE-754, EPSILON, BigInt.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#00d4aa" onclick="showPanel('recursion')"><span class="card-icon">🌀</span><div class="card-title">Recursión</div><div class="card-desc">Caso base, stack overflow, memoización. Pensar recursivo.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#f7c948" onclick="showPanel('eventos')"><span class="card-icon">🫧</span><div class="card-title">Eventos avanzados</div><div class="card-desc">Bubbling, capturing, delegation, CustomEvent. Demo en vivo.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">5 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#ff6b35" onclick="showPanel('abort')"><span class="card-icon">⏱</span><div class="card-title">AbortController</div><div class="card-desc">Cancelar fetch, timeouts con Promise.race, retry con backoff.</div><div class="card-meta"><span class="diff x">Experto</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#7c3aed" onclick="showPanel('clone')"><span class="card-icon">🧪</span><div class="card-title">structuredClone & JSON</div><div class="card-desc">Deep copy real, replacer, reviver, toJSON.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#82aaff" onclick="showPanel('fetchpro')"><span class="card-icon">📡</span><div class="card-title">Fetch avanzado</div><div class="card-desc">POST, PUT, DELETE, headers, FormData, códigos de estado.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#00d4aa" onclick="showPanel('observers')"><span class="card-icon">👁</span><div class="card-title">Observers</div><div class="card-desc">MutationObserver y ResizeObserver con demos en vivo.</div><div class="card-meta"><span class="diff x">Experto</span><span class="card-exs">3 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#ef4444" onclick="showPanel('seguridad')"><span class="card-icon">🛡</span><div class="card-title">Seguridad & XSS</div><div class="card-desc">innerHTML peligroso, sanitización, ataques de inyección.</div><div class="card-meta"><span class="diff x">Experto</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#f7c948" onclick="showPanel('intl')"><span class="card-icon">🌍</span><div class="card-title">Intl & ES2022+</div><div class="card-desc">Intl.Segmenter, ListFormat, Object.hasOwn, at().</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">4 ejs</span></div></div>
+    <div class="topic-card" style="--cc:#00d4aa" onclick="showPanel('a11y')"><span class="card-icon">♿</span><div class="card-title">Accesibilidad JS</div><div class="card-desc">ARIA, focus management, navegación por teclado.</div><div class="card-meta"><span class="diff a">Avanzado</span><span class="card-exs">3 ejs</span></div></div>
+  </div>
+</div>
+<!-- ============ EVENT LOOP ============ -->
+<div class="panel" id="panel-eventloop">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🔄 Event Loop & Concurrencia</div><div class="ex-desc">JavaScript tiene un solo hilo, pero parece hacer mil cosas a la vez. El secreto es el event loop. Entenderlo es LA pregunta de entrevista más repetida del mundo.</div></div>
+  <div class="theory-box">
+    <p><strong>Las 4 piezas del motor:</strong></p>
+    <ul>
+      <li><strong>Call Stack:</strong> donde se ejecuta el código síncrono, una función encima de otra.</li>
+      <li><strong>Web APIs:</strong> el navegador gestiona ahí los setTimeout, fetch, eventos... fuera del hilo de JS.</li>
+      <li><strong>Cola de microtareas:</strong> los <code>.then()</code> de las promesas y <code>queueMicrotask()</code>. Tiene PRIORIDAD MÁXIMA.</li>
+      <li><strong>Cola de macrotareas:</strong> <code>setTimeout</code>, <code>setInterval</code>, eventos de UI. Se atiende DESPUÉS de vaciar las microtareas.</li>
+    </ul>
+    <div class="cb"><span class="fn">console.log</span>(<span class="str">'1'</span>); <span class="cm">// síncrono</span><br><span class="fn">setTimeout</span>(() => <span class="fn">console.log</span>(<span class="str">'2'</span>), <span class="num">0</span>); <span class="cm">// macrotarea</span><br>Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(() => <span class="fn">console.log</span>(<span class="str">'3'</span>)); <span class="cm">// microtarea</span><br><span class="fn">console.log</span>(<span class="str">'4'</span>);<br><span class="cm">// Salida: 1, 4, 3, 2 — ¡aunque el setTimeout tenga 0ms!</span></div>
+  </div>
+  <div class="tip-box"><p>Regla de Igor para entrevistas: primero TODO el código síncrono, luego TODAS las microtareas (promesas), y solo entonces UNA macrotarea (setTimeout). Y vuelta a empezar.</p></div>
+
+  <div class="ex-card" id="ex-el1">
+    <h3><span class="ex-num">1</span>Visualizador del Event Loop <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Pulsa ▶ y observa cómo el motor procesa el código del ejemplo de la teoría paso a paso. Mira en qué orden se vacían las colas.</p>
+    <div class="el-viz">
+      <div class="el-zone stack"><h4>📚 Call Stack</h4><div id="el-stack"></div></div>
+      <div class="el-zone out"><h4>🖥 Consola</h4><div id="el-out"></div></div>
+      <div class="el-zone micro"><h4>⚡ Microtareas (Promesas)</h4><div id="el-micro"></div></div>
+      <div class="el-zone macro"><h4>🐢 Macrotareas (setTimeout)</h4><div id="el-macro"></div></div>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runELViz()">▶ Ejecutar paso a paso</button><button class="btn btn-s" onclick="resetELViz()">↺ Reset</button></div>
+    <div class="feedback" id="fb-el1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-el2">
+    <h3><span class="ex-num">2</span>¿En qué orden sale? <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué imprime este código?</p>
+    <div class="cb"><span class="fn">setTimeout</span>(() => <span class="fn">console.log</span>(<span class="str">'A'</span>), <span class="num">0</span>);<br>Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(() => <span class="fn">console.log</span>(<span class="str">'B'</span>));<br>Promise.<span class="fn">resolve</span>().<span class="fn">then</span>(() => <span class="fn">console.log</span>(<span class="str">'C'</span>));<br><span class="fn">console.log</span>(<span class="str">'D'</span>);</div>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'el2')" data-val="a">A, B, C, D</button>
+      <button class="opt" onclick="selOpt(this,'el2')" data-val="b">D, B, C, A</button>
+      <button class="opt" onclick="selOpt(this,'el2')" data-val="c">D, A, B, C</button>
+      <button class="opt" onclick="selOpt(this,'el2')" data-val="d">B, C, D, A</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('el2','b','Síncrono (D) → microtareas en orden (B, C) → macrotarea (A).','El setTimeout siempre va el último aunque tenga 0ms.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-el2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-el3">
+    <h3><span class="ex-num">3</span>async/await también es microtarea <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué imprime?</p>
+    <div class="cb"><span class="kw">async function</span> <span class="fn">f</span>() {<br>&nbsp;&nbsp;<span class="fn">console.log</span>(<span class="str">'1'</span>);<br>&nbsp;&nbsp;<span class="kw">await</span> <span class="kw">null</span>;<br>&nbsp;&nbsp;<span class="fn">console.log</span>(<span class="str">'2'</span>);<br>}<br><span class="fn">f</span>();<br><span class="fn">console.log</span>(<span class="str">'3'</span>);</div>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'el3')" data-val="a">1, 2, 3</button>
+      <button class="opt" onclick="selOpt(this,'el3')" data-val="b">1, 3, 2</button>
+      <button class="opt" onclick="selOpt(this,'el3')" data-val="c">3, 1, 2</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('el3','b','Todo lo que hay DESPUÉS de un await se convierte en microtarea: cede el turno.','await pausa la función y devuelve el control al código síncrono.')">✓ Comprobar</button><button class="hint-btn" onclick="showHint('h-el3')">💡 Pista</button></div>
+    <div class="hint-txt" id="h-el3">El await parte la función en dos: lo de antes se ejecuta ya, lo de después espera su turno como microtarea.</div>
+    <div class="feedback" id="fb-el3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-el4">
+    <h3><span class="ex-num">4</span>Predicción extrema <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Escribe en el simulador un código que imprima exactamente <code>uno, dos, tres</code> en ese orden usando OBLIGATORIAMENTE: un <code>console.log</code> directo, un <code>setTimeout</code> y una promesa. Piensa qué texto va en cada mecanismo.</p>
+    <textarea class="code-editor" id="el4-code" placeholder="// Tu código aquí: console.log directo, setTimeout y Promise.resolve().then
+// El orden de salida debe ser: uno, dos, tres"></textarea>
+    <div class="console-out" id="el4-out"><div class="line" style="color:var(--text3)">// Salida de tu código</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('el4-code','el4-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkEL4()">✓ Validar</button><button class="hint-btn" onclick="showHint('h-el4')">💡 Pista</button></div>
+    <div class="hint-txt" id="h-el4">"uno" → log directo. "dos" → promesa (microtarea, va segunda). "tres" → setTimeout (macrotarea, va última).</div>
+    <div class="feedback" id="fb-el4"></div>
+  </div>
+
+  <div class="ex-card" id="ex-el5">
+    <h3><span class="ex-num">5</span>queueMicrotask <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué función encola una microtarea SIN necesidad de crear una promesa?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'el5')" data-val="a"><code>setImmediate()</code></button>
+      <button class="opt" onclick="selOpt(this,'el5')" data-val="b"><code>queueMicrotask()</code></button>
+      <button class="opt" onclick="selOpt(this,'el5')" data-val="c"><code>requestAnimationFrame()</code></button>
+      <button class="opt" onclick="selOpt(this,'el5')" data-val="d"><code>setTimeout(fn, -1)</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('el5','b','queueMicrotask(fn) mete fn directamente en la cola de microtareas.','setImmediate es de Node antiguo y requestAnimationFrame va ligado al repintado.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-el5"></div>
+  </div>
+  <div class="curiosity-box"><p>El event loop no es parte del lenguaje JavaScript: lo implementa el entorno (navegador o Node). Por eso Node tiene fases extra como setImmediate y process.nextTick.</p></div>
+</div>
+
+<!-- ============ PROTOTIPOS ============ -->
+<div class="panel" id="panel-protos">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🧬 Prototipos & Herencia Prototípica</div><div class="ex-desc">Las clases ES6 son azúcar sintáctico. Por debajo, JS solo conoce una cosa: objetos que apuntan a otros objetos. Esa cadena es la herencia real.</div></div>
+  <div class="theory-box">
+    <p><strong>La cadena de prototipos:</strong> cuando pides una propiedad que el objeto no tiene, JS la busca en su prototipo, y en el prototipo del prototipo... hasta llegar a <code>null</code>.</p>
+    <div class="cb"><span class="kw">const</span> animal = { <span class="fn">respira</span>() { <span class="kw">return</span> <span class="str">'inhala...'</span>; } };<br><span class="kw">const</span> perro = Object.<span class="fn">create</span>(animal); <span class="cm">// perro hereda de animal</span><br>perro.<span class="fn">ladra</span> = () => <span class="str">'guau'</span>;<br><br>perro.<span class="fn">ladra</span>(); <span class="cm">// 'guau' → propia</span><br>perro.<span class="fn">respira</span>(); <span class="cm">// 'inhala...' → heredada por la cadena</span><br><br>Object.<span class="fn">getPrototypeOf</span>(perro) === animal; <span class="cm">// true</span><br>perro <span class="kw">instanceof</span> Object; <span class="cm">// true: Object.prototype está al final de la cadena</span></div>
+    <p style="margin-top:8px"><strong>Con funciones constructoras y class:</strong> los métodos de una <code>class</code> viven en <code>NombreClase.prototype</code>, no en cada instancia. Mil instancias comparten UN solo método en memoria.</p>
+  </div>
+  <div class="tip-box"><p>Nunca uses <code>__proto__</code> en código real (está obsoleto). Usa <code>Object.getPrototypeOf()</code> y <code>Object.create()</code>.</p></div>
+
+  <div class="ex-card" id="ex-pr1">
+    <h3><span class="ex-num">1</span>¿Dónde vive el método? <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Si creas <code>class Coche { acelerar() {} }</code> y 100 instancias con <code>new Coche()</code>, ¿cuántas copias del método <code>acelerar</code> existen en memoria?</p>
+    <div class="opts" style="grid-template-columns:repeat(4,1fr)">
+      <button class="opt" onclick="selOpt(this,'pr1')" data-val="a">100</button>
+      <button class="opt" onclick="selOpt(this,'pr1')" data-val="b">1</button>
+      <button class="opt" onclick="selOpt(this,'pr1')" data-val="c">101</button>
+      <button class="opt" onclick="selOpt(this,'pr1')" data-val="d">0</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('pr1','b','Una sola: vive en Coche.prototype y todas las instancias la encuentran por la cadena.','Los métodos de clase NO se copian a cada instancia.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-pr1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-pr2">
+    <h3><span class="ex-num">2</span>Object.create en vivo <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Crea un objeto <code>guerrero</code> con un método <code>atacar()</code> que devuelva "¡espadazo!". Después crea <code>ninja</code> con <code>Object.create(guerrero)</code> y haz <code>console.log(ninja.atacar())</code>. El ninja no tiene el método: lo hereda.</p>
+    <textarea class="code-editor" id="pr2-code" placeholder="const guerrero = { ... };
+const ninja = Object.create(guerrero);
+console.log(ninja.atacar());"></textarea>
+    <div class="console-out" id="pr2-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('pr2-code','pr2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('pr2','pr2-code','pr2-out',['Object.create','atacar'],'espadazo','Herencia prototípica pura: el ninja busca atacar() en su prototipo.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-pr2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-pr3">
+    <h3><span class="ex-num">3</span>El final de la cadena <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">¿Qué devuelve <code>Object.getPrototypeOf(Object.prototype)</code>?</p>
+    <div class="opts" style="grid-template-columns:repeat(4,1fr)">
+      <button class="opt" onclick="selOpt(this,'pr3')" data-val="a"><code>Object</code></button>
+      <button class="opt" onclick="selOpt(this,'pr3')" data-val="b"><code>undefined</code></button>
+      <button class="opt" onclick="selOpt(this,'pr3')" data-val="c"><code>null</code></button>
+      <button class="opt" onclick="selOpt(this,'pr3')" data-val="d">Error</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('pr3','c','null es el techo: ahí termina toda búsqueda de propiedades.','La cadena siempre acaba en null.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-pr3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-pr4">
+    <h3><span class="ex-num">4</span>Shadowing — propiedad que tapa <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué imprime este código?</p>
+    <div class="cb"><span class="kw">const</span> base = { poder: <span class="num">10</span> };<br><span class="kw">const</span> hijo = Object.<span class="fn">create</span>(base);<br>hijo.poder = <span class="num">99</span>;<br><span class="fn">console.log</span>(hijo.poder, base.poder);</div>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'pr4')" data-val="a">99, 99</button>
+      <button class="opt" onclick="selOpt(this,'pr4')" data-val="b">99, 10</button>
+      <button class="opt" onclick="selOpt(this,'pr4')" data-val="c">10, 10</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('pr4','b','Asignar crea una propiedad PROPIA en hijo que hace sombra a la heredada. base no cambia.','Escribir nunca modifica el prototipo; solo leer sube por la cadena.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-pr4"></div>
+  </div>
+
+  <div class="ex-card" id="ex-pr5">
+    <h3><span class="ex-num">5</span>hasOwnProperty vs in <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Con el código del ejercicio anterior ANTES de asignar <code>hijo.poder = 99</code>: ¿qué devuelven <code>'poder' in hijo</code> y <code>Object.hasOwn(hijo, 'poder')</code>?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'pr5')" data-val="a"><code>true</code> y <code>true</code></button>
+      <button class="opt" onclick="selOpt(this,'pr5')" data-val="b"><code>true</code> y <code>false</code></button>
+      <button class="opt" onclick="selOpt(this,'pr5')" data-val="c"><code>false</code> y <code>false</code></button>
+      <button class="opt" onclick="selOpt(this,'pr5')" data-val="d"><code>false</code> y <code>true</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('pr5','b','in recorre toda la cadena (true); hasOwn solo mira propiedades propias (false).','Uno mira la cadena entera, el otro solo el objeto.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-pr5"></div>
+  </div>
+</div>
+
+<!-- ============ THIS ============ -->
+<div class="panel" id="panel-this">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🎯 this, call, apply, bind</div><div class="ex-desc">this no depende de DÓNDE se escribe la función, sino de CÓMO se llama. Cuatro reglas lo deciden todo.</div></div>
+  <div class="theory-box">
+    <p><strong>Las 4 reglas de this (de menor a mayor prioridad):</strong></p>
+    <ul>
+      <li><strong>1. Llamada simple:</strong> <code>f()</code> → this es <code>undefined</code> (strict mode) o window.</li>
+      <li><strong>2. Llamada de método:</strong> <code>obj.f()</code> → this es <code>obj</code> (lo que hay antes del punto).</li>
+      <li><strong>3. Explícito:</strong> <code>f.call(x)</code>, <code>f.apply(x)</code>, <code>f.bind(x)</code> → this es <code>x</code>.</li>
+      <li><strong>4. Constructor:</strong> <code>new F()</code> → this es el objeto nuevo.</li>
+    </ul>
+    <p><strong>Excepción total — arrow functions:</strong> NO tienen this propio. Heredan el this del lugar donde fueron escritas. Por eso son perfectas para callbacks.</p>
+    <div class="cb"><span class="kw">const</span> mago = {<br>&nbsp;&nbsp;nombre: <span class="str">'Igor'</span>,<br>&nbsp;&nbsp;<span class="fn">saluda</span>() { <span class="kw">return</span> <span class="str">`Soy <span class="var">${this.nombre}</span>`</span>; }<br>};<br>mago.<span class="fn">saluda</span>(); <span class="cm">// 'Soy Igor' — regla 2</span><br><br><span class="kw">const</span> suelta = mago.saluda;<br><span class="fn">suelta</span>(); <span class="cm">// 'Soy undefined' — regla 1: ¡perdió el contexto!</span><br><br><span class="kw">const</span> atada = mago.saluda.<span class="fn">bind</span>(mago);<br><span class="fn">atada</span>(); <span class="cm">// 'Soy Igor' — regla 3: bind lo fija para siempre</span></div>
+  </div>
+
+  <div class="ex-card" id="ex-th1">
+    <h3><span class="ex-num">1</span>¿Quién es this? <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">¿Qué imprime <code>jugador.nivel()</code>?</p>
+    <div class="cb"><span class="kw">const</span> jugador = {<br>&nbsp;&nbsp;xp: <span class="num">500</span>,<br>&nbsp;&nbsp;<span class="fn">nivel</span>() { <span class="kw">return</span> this.xp / <span class="num">100</span>; }<br>};<br><span class="fn">console.log</span>(jugador.<span class="fn">nivel</span>());</div>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'th1')" data-val="a">5</button>
+      <button class="opt" onclick="selOpt(this,'th1')" data-val="b">NaN</button>
+      <button class="opt" onclick="selOpt(this,'th1')" data-val="c">undefined</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('th1','a','Llamada de método: this = jugador, 500/100 = 5.','Mira qué hay antes del punto en la llamada.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-th1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-th2">
+    <h3><span class="ex-num">2</span>call vs apply vs bind <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Arrastra cada método a su descripción en el orden: ejecuta YA con argumentos sueltos → ejecuta YA con argumentos en array → devuelve función nueva con this fijado.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div style="font-size:9px;color:var(--text3);margin-bottom:5px;font-family:var(--font-c)">MÉTODOS</div>
+        <div id="th2-pool" class="drag-area" style="flex-direction:column;min-height:110px">
+          <div class="drag-item" draggable="true" data-val="bind">.bind(obj)</div>
+          <div class="drag-item" draggable="true" data-val="call">.call(obj, a, b)</div>
+          <div class="drag-item" draggable="true" data-val="apply">.apply(obj, [a, b])</div>
+        </div></div>
+      <div><div style="font-size:9px;color:var(--text3);margin-bottom:5px;font-family:var(--font-c)">ORDEN: ejecuta+sueltos → ejecuta+array → devuelve función</div>
+        <div id="th2-target" class="drag-area" style="flex-direction:column;min-height:110px"></div></div>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkDrag('th2',['call','apply','bind'],'call = Comas, apply = Array, bind = aplaza. Truco mnemotécnico C-A-B.')">✓ Comprobar</button><button class="btn btn-s" onclick="resetDrag('th2-pool','th2-target')">↺</button></div>
+    <div class="feedback" id="fb-th2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-th3">
+    <h3><span class="ex-num">3</span>El clásico del setTimeout <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Por qué este código imprime <code>undefined</code> y cuál es la solución más limpia?</p>
+    <div class="cb"><span class="kw">const</span> reloj = {<br>&nbsp;&nbsp;hora: <span class="num">12</span>,<br>&nbsp;&nbsp;<span class="fn">tic</span>() {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">setTimeout</span>(<span class="kw">function</span>() { <span class="fn">console.log</span>(this.hora); }, <span class="num">100</span>);<br>&nbsp;&nbsp;}<br>};<br>reloj.<span class="fn">tic</span>(); <span class="cm">// undefined ¿?</span></div>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'th3')" data-val="a">El callback es una llamada simple (regla 1) y pierde this. Solución: usar arrow function, que hereda el this de tic().</button>
+      <button class="opt" onclick="selOpt(this,'th3')" data-val="b">setTimeout borra las variables. Solución: usar setInterval.</button>
+      <button class="opt" onclick="selOpt(this,'th3')" data-val="c">hora es privada. Solución: hacerla pública con var.</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('th3','a','Las arrow functions no tienen this propio: heredan el de tic(), que sí apunta a reloj.','La función normal dentro de setTimeout se llama sin contexto.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-th3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-th4">
+    <h3><span class="ex-num">4</span>Préstamo de métodos con call <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Crea un objeto <code>dragon</code> con <code>vida: 1000</code>, un objeto <code>goblin</code> con <code>vida: 50</code>, y una función SUELTA <code>estado()</code> que devuelva <code>`Vida: ${this.vida}`</code>. Usa <code>call</code> para ejecutarla con cada uno e imprime ambos resultados.</p>
+    <textarea class="code-editor" id="th4-code" placeholder="function estado() { return `Vida: ${this.vida}`; }
+// console.log(estado.call(...))"></textarea>
+    <div class="console-out" id="th4-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('th4-code','th4-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('th4','th4-code','th4-out',['.call('],'1000','Una sola función sirviendo a dos objetos: eso es call.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-th4"></div>
+  </div>
+
+  <div class="ex-card" id="ex-th5">
+    <h3><span class="ex-num">5</span>bind solo funciona una vez <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Si haces <code>const f2 = f.bind(objA)</code> y luego <code>f2.bind(objB)()</code>, ¿qué this usa la ejecución final?</p>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'th5')" data-val="a"><code>objA</code></button>
+      <button class="opt" onclick="selOpt(this,'th5')" data-val="b"><code>objB</code></button>
+      <button class="opt" onclick="selOpt(this,'th5')" data-val="c"><code>undefined</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('th5','a','El primer bind es permanente: una función ya atada ignora binds posteriores.','bind no se puede sobrescribir.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-th5"></div>
+  </div>
+</div>
+<!-- ============ COERCION ============ -->
+<div class="panel" id="panel-coercion">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">⚖️ Coerción de Tipos</div><div class="ex-desc">JavaScript convierte tipos automáticamente cuando no le cuadran. Entender esas reglas evita el 80% de los bugs raros.</div></div>
+  <div class="theory-box">
+    <p><strong>== convierte, === no:</strong> el doble igual transforma los operandos hasta que coincidan los tipos. El triple igual compara tipo Y valor sin tocar nada.</p>
+    <div class="cb"><span class="num">5</span> == <span class="str">'5'</span>&nbsp;&nbsp;<span class="cm">// true  (convierte el string a número)</span><br><span class="num">5</span> === <span class="str">'5'</span> <span class="cm">// false (tipos distintos, fin)</span><br><span class="kw">null</span> == <span class="kw">undefined</span>&nbsp;<span class="cm">// true (caso especial del lenguaje)</span><br><span class="kw">null</span> === <span class="kw">undefined</span> <span class="cm">// false</span><br>NaN === NaN <span class="cm">// false ¡NaN no es igual ni a sí mismo!</span><br>Object.<span class="fn">is</span>(NaN, NaN) <span class="cm">// true — la comparación más estricta</span></div>
+    <p style="margin-top:8px"><strong>Los 8 valores falsy:</strong> <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>""</code>, <code>null</code>, <code>undefined</code>, <code>NaN</code>. TODO lo demás es truthy, incluidos <code>"0"</code>, <code>[]</code> y <code>{}</code>.</p>
+  </div>
+  <div class="tip-box"><p>Regla de Igor: usa SIEMPRE ===. La única excepción aceptada en la industria es <code>x == null</code> para comprobar null y undefined a la vez.</p></div>
+
+  <div class="ex-card" id="ex-co1">
+    <h3><span class="ex-num">1</span>Verdadero o falsy <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">¿Cuál de estos valores es TRUTHY?</p>
+    <div class="opts" style="grid-template-columns:repeat(4,1fr)">
+      <button class="opt" onclick="selOpt(this,'co1')" data-val="a"><code>""</code></button>
+      <button class="opt" onclick="selOpt(this,'co1')" data-val="b"><code>0</code></button>
+      <button class="opt" onclick="selOpt(this,'co1')" data-val="c"><code>[]</code></button>
+      <button class="opt" onclick="selOpt(this,'co1')" data-val="d"><code>NaN</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('co1','c','Un array vacío es un objeto, y TODO objeto es truthy. if([]) entra siempre.','Repasa la lista de los 8 falsy: [] no está.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-co1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-co2">
+    <h3><span class="ex-num">2</span>El infierno del + <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué imprime?</p>
+    <div class="cb"><span class="fn">console.log</span>(<span class="num">1</span> + <span class="str">'2'</span>);<br><span class="fn">console.log</span>(<span class="str">'5'</span> - <span class="num">2</span>);<br><span class="fn">console.log</span>(<span class="kw">true</span> + <span class="kw">true</span>);</div>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'co2')" data-val="a"><code>3</code>, <code>3</code>, <code>2</code></button>
+      <button class="opt" onclick="selOpt(this,'co2')" data-val="b"><code>"12"</code>, <code>3</code>, <code>2</code></button>
+      <button class="opt" onclick="selOpt(this,'co2')" data-val="c"><code>"12"</code>, <code>"3"</code>, <code>true</code></button>
+      <button class="opt" onclick="selOpt(this,'co2')" data-val="d">Error en las tres</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('co2','b','El + con un string concatena. El - solo sabe restar números, así que convierte. true vale 1.','El + es el único operador matemático que también concatena.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-co2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-co3">
+    <h3><span class="ex-num">3</span>Detectar NaN correctamente <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Cuál es la forma CORRECTA y moderna de comprobar si una variable es NaN?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'co3')" data-val="a"><code>x === NaN</code></button>
+      <button class="opt" onclick="selOpt(this,'co3')" data-val="b"><code>Number.isNaN(x)</code></button>
+      <button class="opt" onclick="selOpt(this,'co3')" data-val="c"><code>isNaN(x)</code> global</button>
+      <button class="opt" onclick="selOpt(this,'co3')" data-val="d"><code>x == 'NaN'</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('co3','b','Number.isNaN no convierte el argumento. El isNaN global da falsos positivos: isNaN(\"hola\") es true.','x === NaN siempre es false. El global convierte antes de comprobar.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-co3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-co4">
+    <h3><span class="ex-num">4</span>Laboratorio de coerción <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Comprueba en el simulador 3 comparaciones que te sorprendan. Imprime al menos: <code>[] == false</code>, <code>'0' == 0</code> y <code>null == 0</code>. Antes de ejecutar, apuesta mentalmente el resultado.</p>
+    <textarea class="code-editor" id="co4-code" placeholder="console.log([] == false);
+console.log('0' == 0);
+console.log(null == 0);"></textarea>
+    <div class="console-out" id="co4-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('co4-code','co4-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('co4','co4-code','co4-out',['=='],'true','[] == false es true, \'0\' == 0 es true... pero null == 0 es false. null solo iguala a undefined.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-co4"></div>
+  </div>
+
+  <div class="ex-card" id="ex-co5">
+    <h3><span class="ex-num">5</span>Object.is — los dos casos especiales <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q"><code>Object.is</code> se comporta como === excepto en exactamente dos casos. ¿Cuáles?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'co5')" data-val="a"><code>NaN</code> consigo mismo (true) y <code>+0</code> vs <code>-0</code> (false)</button>
+      <button class="opt" onclick="selOpt(this,'co5')" data-val="b"><code>null</code> vs <code>undefined</code> (true) y strings vs números</button>
+      <button class="opt" onclick="selOpt(this,'co5')" data-val="c">Arrays iguales (true) y objetos iguales (true)</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('co5','a','Object.is(NaN,NaN) es true y Object.is(0,-0) es false. Más preciso que === en esos dos límites.','Piensa en los dos valores raros de IEEE-754.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-co5"></div>
+  </div>
+</div>
+
+<!-- ============ MEMORIA ============ -->
+<div class="panel" id="panel-memoria">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🧠 Memoria, Garbage Collector & Weak*</div><div class="ex-desc">JS libera memoria solo... salvo cuando tú se lo impides sin darte cuenta. Aquí aprendes a no crear memory leaks y a usar las colecciones débiles.</div></div>
+  <div class="theory-box">
+    <p><strong>Garbage Collector (GC):</strong> un valor se libera cuando nada lo puede alcanzar. Si un objeto sigue referenciado (en una variable global, un Map, un listener...), NUNCA se libera.</p>
+    <div class="cb"><span class="kw">const</span> cache = <span class="kw">new</span> <span class="fn">Map</span>();<br><span class="kw">let</span> usuario = { nombre: <span class="str">'Igor'</span> };<br>cache.<span class="fn">set</span>(usuario, <span class="str">'datos'</span>);<br>usuario = <span class="kw">null</span>; <span class="cm">// ¡el objeto sigue vivo dentro del Map! → leak</span><br><br><span class="kw">const</span> cacheDebil = <span class="kw">new</span> <span class="fn">WeakMap</span>();<br><span class="cm">// con WeakMap, si el objeto-clave muere fuera, el GC lo limpia también dentro</span></div>
+    <p style="margin-top:8px"><strong>WeakMap/WeakSet:</strong> solo aceptan objetos como clave, no son iterables y no tienen <code>.size</code> — precisamente porque sus entradas pueden desaparecer en cualquier momento.</p>
+    <p><strong>Fuentes típicas de leaks:</strong> listeners no eliminados, intervalos sin <code>clearInterval</code>, caches con Map, closures que retienen objetos grandes.</p>
+  </div>
+
+  <div class="ex-card" id="ex-me1">
+    <h3><span class="ex-num">1</span>¿Cuándo se libera? <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué condición hace que el garbage collector libere un objeto?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'me1')" data-val="a">Que lleve más de 5 minutos sin usarse</button>
+      <button class="opt" onclick="selOpt(this,'me1')" data-val="b">Que no exista ninguna referencia alcanzable hacia él</button>
+      <button class="opt" onclick="selOpt(this,'me1')" data-val="c">Que el programador llame a <code>delete objeto</code></button>
+      <button class="opt" onclick="selOpt(this,'me1')" data-val="d">Que su valor sea null</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('me1','b','Alcanzabilidad: si nada llega al objeto, se libera. No hay control manual en JS.','delete borra propiedades, no objetos. El tiempo no importa.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-me1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-me2">
+    <h3><span class="ex-num">2</span>Map vs WeakMap <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué afirmación sobre WeakMap es FALSA?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'me2')" data-val="a">Sus claves solo pueden ser objetos</button>
+      <button class="opt" onclick="selOpt(this,'me2')" data-val="b">Se puede recorrer con for...of</button>
+      <button class="opt" onclick="selOpt(this,'me2')" data-val="c">Sus entradas pueden ser recolectadas por el GC</button>
+      <button class="opt" onclick="selOpt(this,'me2')" data-val="d">No tiene propiedad .size</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('me2','b','WeakMap NO es iterable: como sus entradas pueden desaparecer en cualquier momento, listar su contenido no sería fiable.','Tres son ciertas, una imposible.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-me2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-me3">
+    <h3><span class="ex-num">3</span>Caza el memory leak <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Cuál de estos fragmentos crea un memory leak clásico?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'me3')" data-val="a"><code>setInterval(() => actualizar(datosGrandes), 1000)</code> sin guardar el id ni hacer clearInterval al destruir el componente</button>
+      <button class="opt" onclick="selOpt(this,'me3')" data-val="b"><code>const x = [1,2,3]; x.length = 0;</code></button>
+      <button class="opt" onclick="selOpt(this,'me3')" data-val="c"><code>let y = {grande: true}; y = null;</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('me3','a','El intervalo vive para siempre y su closure retiene datosGrandes. Siempre guarda el id y limpia.','Las otras dos liberan memoria correctamente.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-me3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-me4">
+    <h3><span class="ex-num">4</span>WeakSet para marcar objetos <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Crea un <code>WeakSet</code> llamado <code>procesados</code>, un objeto <code>pedido</code>, añádelo con <code>.add()</code> y comprueba con <code>.has()</code> imprimiendo el resultado. Este patrón marca objetos sin impedir que el GC los limpie.</p>
+    <textarea class="code-editor" id="me4-code" placeholder="const procesados = new WeakSet();
+const pedido = { id: 1 };
+// añade y comprueba"></textarea>
+    <div class="console-out" id="me4-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('me4-code','me4-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('me4','me4-code','me4-out',['WeakSet','.add(','.has('],'true','Marcar sin retener: el superpoder de las colecciones débiles.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-me4"></div>
+  </div>
+</div>
+
+<!-- ============ NUMEROS ============ -->
+<div class="panel" id="panel-numeros">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🔢 Números Precisos & BigInt</div><div class="ex-desc">0.1 + 0.2 no es 0.3 en JavaScript. No es un bug: es matemática binaria. Aquí aprendes a manejarla y a usar enteros gigantes.</div></div>
+  <div class="theory-box">
+    <p><strong>IEEE-754:</strong> todos los números de JS son flotantes de 64 bits. Igual que 1/3 no se puede escribir exacto en decimal (0.3333...), 0.1 no se puede escribir exacto en binario.</p>
+    <div class="cb"><span class="num">0.1</span> + <span class="num">0.2</span> <span class="cm">// 0.30000000000000004</span><br><br><span class="cm">// Comparar flotantes: usa un margen de error</span><br>Math.<span class="fn">abs</span>((<span class="num">0.1</span> + <span class="num">0.2</span>) - <span class="num">0.3</span>) &lt; Number.EPSILON <span class="cm">// true ✓</span><br><br><span class="cm">// Enteros seguros solo hasta:</span><br>Number.MAX_SAFE_INTEGER <span class="cm">// 9007199254740991 (2^53 - 1)</span><br><br><span class="cm">// Más allá: BigInt (sufijo n)</span><br><span class="kw">const</span> gigante = <span class="num">9007199254740993n</span>;<br>gigante + <span class="num">1n</span> <span class="cm">// exacto. Pero no se puede mezclar BigInt con Number</span></div>
+  </div>
+  <div class="tip-box"><p>Para dinero, nunca uses flotantes: trabaja en céntimos con enteros (1999 en vez de 19.99) o usa BigInt. Los bancos no perdonan el 0.000000000004.</p></div>
+
+  <div class="ex-card" id="ex-nu1">
+    <h3><span class="ex-num">1</span>El clásico absoluto <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">¿Qué devuelve <code>0.1 + 0.2 === 0.3</code>?</p>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'nu1')" data-val="a"><code>true</code></button>
+      <button class="opt" onclick="selOpt(this,'nu1')" data-val="b"><code>false</code></button>
+      <button class="opt" onclick="selOpt(this,'nu1')" data-val="c">Error</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('nu1','b','false: la suma da 0.30000000000000004 por la representación binaria.','Pruébalo en cualquier consola del mundo.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-nu1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-nu2">
+    <h3><span class="ex-num">2</span>Compara flotantes bien <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Escribe una función <code>casiIguales(a, b)</code> que devuelva true si la diferencia absoluta entre a y b es menor que <code>Number.EPSILON</code>. Pruébala con <code>casiIguales(0.1 + 0.2, 0.3)</code> e imprime el resultado.</p>
+    <textarea class="code-editor" id="nu2-code" placeholder="function casiIguales(a, b) {
+  // Math.abs y Number.EPSILON
+}
+console.log(casiIguales(0.1 + 0.2, 0.3));"></textarea>
+    <div class="console-out" id="nu2-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('nu2-code','nu2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('nu2','nu2-code','nu2-out',['Math.abs','Number.EPSILON'],'true','Esta función es estándar en motores de físicas y finanzas.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-nu2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-nu3">
+    <h3><span class="ex-num">3</span>La frontera de los enteros <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué devuelve <code>Number.MAX_SAFE_INTEGER + 1 === Number.MAX_SAFE_INTEGER + 2</code>?</p>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'nu3')" data-val="a"><code>false</code></button>
+      <button class="opt" onclick="selOpt(this,'nu3')" data-val="b"><code>true</code></button>
+      <button class="opt" onclick="selOpt(this,'nu3')" data-val="c">Error</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('nu3','b','true: más allá de 2^53-1 los flotantes pierden precisión de unidad y números distintos colapsan en el mismo valor.','Por eso existe BigInt.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-nu3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-nu4">
+    <h3><span class="ex-num">4</span>BigInt en acción <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué pasa al ejecutar <code>10n + 5</code>?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'nu4')" data-val="a">Devuelve <code>15n</code></button>
+      <button class="opt" onclick="selOpt(this,'nu4')" data-val="b">Devuelve <code>15</code></button>
+      <button class="opt" onclick="selOpt(this,'nu4')" data-val="c">Lanza TypeError: no se pueden mezclar BigInt y Number</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('nu4','c','Mezclar tipos numéricos lanza error: hay que convertir explícitamente con BigInt(5) o Number(10n).','JS te obliga a decidir la precisión tú mismo.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-nu4"></div>
+  </div>
+</div>
+
+<!-- ============ RECURSION ============ -->
+<div class="panel" id="panel-recursion">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🌀 Recursión</div><div class="ex-desc">Una función que se llama a sí misma. Imprescindible para árboles, JSON anidado, algoritmos de búsqueda y... entrevistas técnicas.</div></div>
+  <div class="theory-box">
+    <p><strong>Anatomía de toda recursión:</strong></p>
+    <ul>
+      <li><strong>Caso base:</strong> la condición que DETIENE las llamadas. Sin él → stack overflow.</li>
+      <li><strong>Caso recursivo:</strong> la función se llama a sí misma con un problema MÁS PEQUEÑO.</li>
+    </ul>
+    <div class="cb"><span class="kw">function</span> <span class="fn">factorial</span>(n) {<br>&nbsp;&nbsp;<span class="kw">if</span> (n &lt;= <span class="num">1</span>) <span class="kw">return</span> <span class="num">1</span>;&nbsp;&nbsp;<span class="cm">// caso base</span><br>&nbsp;&nbsp;<span class="kw">return</span> n * <span class="fn">factorial</span>(n - <span class="num">1</span>); <span class="cm">// caso recursivo</span><br>}<br><span class="fn">factorial</span>(<span class="num">5</span>); <span class="cm">// 5*4*3*2*1 = 120</span></div>
+    <p style="margin-top:8px"><strong>Memoización:</strong> guardar resultados ya calculados en un objeto/Map para no repetir trabajo. Convierte fibonacci de exponencial a lineal.</p>
+  </div>
+
+  <div class="ex-card" id="ex-re1">
+    <h3><span class="ex-num">1</span>¿Qué pasa sin caso base? <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Si una función recursiva no tiene caso base (o nunca lo alcanza), ¿qué error obtienes?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'re1')" data-val="a"><code>RangeError: Maximum call stack size exceeded</code></button>
+      <button class="opt" onclick="selOpt(this,'re1')" data-val="b"><code>SyntaxError</code></button>
+      <button class="opt" onclick="selOpt(this,'re1')" data-val="c">El navegador se reinicia</button>
+      <button class="opt" onclick="selOpt(this,'re1')" data-val="d">Devuelve undefined infinitas veces</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('re1','a','Cada llamada apila un frame en el call stack hasta que revienta: stack overflow.','Conecta esto con lo aprendido en el módulo del Event Loop.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-re1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-re2">
+    <h3><span class="ex-num">2</span>Tu primera recursión <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Escribe <code>cuentaAtras(n)</code> recursiva que imprima n, n-1... hasta 1 y al final imprima "¡Despegue!". Llámala con 5.</p>
+    <textarea class="code-editor" id="re2-code" placeholder="function cuentaAtras(n) {
+  // caso base y caso recursivo
+}
+cuentaAtras(5);"></textarea>
+    <div class="console-out" id="re2-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('re2-code','re2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('re2','re2-code','re2-out',['cuentaAtras(n - 1)|cuentaAtras(n-1)'],'Despegue','Recursión básica dominada.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-re2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-re3">
+    <h3><span class="ex-num">3</span>Recorrer JSON anidado <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">El caso de uso real número 1: sumar todos los valores de un objeto anidado a profundidad desconocida. Completa la función con la llamada recursiva.</p>
+    <div class="fill-code"><span class="kw">function</span> <span class="fn">sumaTodo</span>(obj) {<br>&nbsp;&nbsp;<span class="kw">let</span> total = <span class="num">0</span>;<br>&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">const</span> v <span class="kw">of</span> Object.<span class="fn">values</span>(obj)) {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> (<span class="kw">typeof</span> v === <span class="str">'object'</span>) total += <input class="ci-inline" id="re3-b1" placeholder="???" style="width:110px">;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span> total += v;<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;<span class="kw">return</span> total;<br>}</div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkFill('re3',['re3-b1'],[['sumatodo(v)']],'La función se aplica a sí misma sobre el subobjeto: así baja todos los niveles.')">✓ Comprobar</button><button class="hint-btn" onclick="showHint('h-re3')">💡 Pista</button></div>
+    <div class="hint-txt" id="h-re3">Llama a la propia función pasándole v.</div>
+    <div class="feedback" id="fb-re3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-re4">
+    <h3><span class="ex-num">4</span>Memoización <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Por qué <code>fibonacci(45)</code> sin memoizar tarda segundos pero con memoización es instantáneo?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'re4')" data-val="a">Sin caché recalcula los mismos valores millones de veces (árbol exponencial); con caché cada valor se calcula una sola vez</button>
+      <button class="opt" onclick="selOpt(this,'re4')" data-val="b">La memoización usa la GPU</button>
+      <button class="opt" onclick="selOpt(this,'re4')" data-val="c">JavaScript optimiza automáticamente cualquier recursión</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('re4','a','fib(45) ingenuo hace ~2.700 millones de llamadas; memoizado, 45. De O(2^n) a O(n).','Piensa cuántas veces se recalcula fib(2).')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-re4"></div>
+  </div>
+</div>
+<!-- ============ EVENTOS AVANZADOS ============ -->
+<div class="panel" id="panel-eventos">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🫧 Eventos Avanzados</div><div class="ex-desc">Ya sabes usar addEventListener. Ahora aprende cómo VIAJAN los eventos por el DOM y el patrón que usan todas las apps profesionales: delegation.</div></div>
+  <div class="theory-box">
+    <p><strong>Un clic viaja en 3 fases:</strong></p>
+    <ul>
+      <li><strong>Capturing:</strong> baja desde window hasta el elemento (poco usado).</li>
+      <li><strong>Target:</strong> llega al elemento clicado.</li>
+      <li><strong>Bubbling:</strong> sube de hijo a padre hasta window. Aquí escuchan casi todos los listeners.</li>
+    </ul>
+    <div class="cb"><span class="cm">// Event delegation: UN listener en el padre gestiona N hijos</span><br>lista.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, e => {<br>&nbsp;&nbsp;<span class="kw">const</span> item = e.target.<span class="fn">closest</span>(<span class="str">'li'</span>);<br>&nbsp;&nbsp;<span class="kw">if</span> (item) <span class="fn">console.log</span>(<span class="str">'clicaste'</span>, item.dataset.id);<br>});<br><br><span class="cm">// CustomEvent: tus propios eventos con datos</span><br><span class="kw">const</span> ev = <span class="kw">new</span> <span class="fn">CustomEvent</span>(<span class="str">'compra'</span>, { detail: { precio: <span class="num">19.99</span> }, bubbles: <span class="kw">true</span> });<br>elemento.<span class="fn">dispatchEvent</span>(ev);</div>
+    <p style="margin-top:8px"><code>e.stopPropagation()</code> frena el viaje del evento. <code>e.preventDefault()</code> cancela la acción nativa (enviar formulario, seguir enlace). Son cosas distintas.</p>
+  </div>
+
+  <div class="ex-card" id="ex-ev1">
+    <h3><span class="ex-num">1</span>Demo: mira el burbujeo <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Haz clic en la caja más interior (NIETO) y observa el orden en que se iluminan y aparecen en consola. El evento sube.</p>
+    <div class="bubble-demo">
+      <div class="bub" id="bub-abuelo">ABUELO<div class="bub" id="bub-padre" style="margin-top:10px">PADRE<div class="bub" id="bub-nieto" style="margin-top:10px">NIETO — clic aquí</div></div></div>
+    </div>
+    <div class="console-out" id="ev1-out"><div class="line" style="color:var(--text3)">// Orden de los listeners</div></div>
+    <div class="ctrl"><button class="btn btn-s" onclick="document.getElementById('ev1-out').innerHTML=''">↺ Limpiar</button></div>
+    <div class="feedback" id="fb-ev1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ev2">
+    <h3><span class="ex-num">2</span>¿En qué orden burbujea? <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Tras hacer la demo anterior: con listeners normales (sin capture) en abuelo, padre y nieto, al clicar el nieto, ¿qué orden de ejecución ves?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ev2')" data-val="a">abuelo → padre → nieto</button>
+      <button class="opt" onclick="selOpt(this,'ev2')" data-val="b">nieto → padre → abuelo</button>
+      <button class="opt" onclick="selOpt(this,'ev2')" data-val="c">Aleatorio</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ev2','b','Bubbling: del elemento clicado hacia arriba, como una burbuja en el agua.','Lo acabas de ver en la demo.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ev2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ev3">
+    <h3><span class="ex-num">3</span>¿Por qué delegation? <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Tienes una lista con 1000 items y los items se añaden/eliminan dinámicamente. ¿Por qué un solo listener en el padre es mejor que 1000 listeners?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ev3')" data-val="a">Menos memoria, y los items nuevos funcionan automáticamente sin registrar nada (el evento burbujea hasta el padre igualmente)</button>
+      <button class="opt" onclick="selOpt(this,'ev3')" data-val="b">Los listeners en hijos no funcionan en listas</button>
+      <button class="opt" onclick="selOpt(this,'ev3')" data-val="c">Es solo una moda, da igual</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ev3','a','Delegation aprovecha el bubbling: el padre intercepta todo, presente y futuro.','Piensa qué pasa con un item añadido después de registrar los listeners.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ev3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ev4">
+    <h3><span class="ex-num">4</span>stopPropagation vs preventDefault <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Quieres que al hacer clic en un enlace NO se navegue, pero que el clic SÍ llegue a los listeners del padre. ¿Qué usas?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ev4')" data-val="a">Solo <code>e.preventDefault()</code></button>
+      <button class="opt" onclick="selOpt(this,'ev4')" data-val="b">Solo <code>e.stopPropagation()</code></button>
+      <button class="opt" onclick="selOpt(this,'ev4')" data-val="c">Las dos</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ev4','a','preventDefault cancela la acción del navegador pero deja burbujear. stopPropagation haría lo contrario.','Son ortogonales: una cosa es la acción nativa, otra el viaje del evento.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ev4"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ev5">
+    <h3><span class="ex-num">5</span>Tu propio CustomEvent <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Crea un <code>CustomEvent</code> llamado <code>'levelup'</code> con <code>detail: { nivel: 7 }</code>. Escúchalo en <code>document</code> imprimiendo <code>e.detail.nivel</code>, y dispáralo con <code>document.dispatchEvent()</code>.</p>
+    <textarea class="code-editor" id="ev5-code" placeholder="document.addEventListener('levelup', e => { ... });
+const ev = new CustomEvent('levelup', { detail: { nivel: 7 } });
+document.dispatchEvent(ev);"></textarea>
+    <div class="console-out" id="ev5-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('ev5-code','ev5-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('ev5','ev5-code','ev5-out',['CustomEvent','dispatchEvent','detail'],'7','Los CustomEvent son la base de la comunicación entre componentes sin frameworks.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-ev5"></div>
+  </div>
+</div>
+
+<!-- ============ ABORTCONTROLLER ============ -->
+<div class="panel" id="panel-abort">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">⏱ AbortController, Timeouts & Retry</div><div class="ex-desc">Un fetch que nunca responde puede colgar tu app. Aquí aprendes a cancelar peticiones, ponerles límite de tiempo y reintentarlas con cabeza.</div></div>
+  <div class="theory-box">
+    <p><strong>AbortController:</strong> un mando a distancia para cancelar operaciones asíncronas.</p>
+    <div class="cb"><span class="kw">const</span> ctrl = <span class="kw">new</span> <span class="fn">AbortController</span>();<br><span class="fn">fetch</span>(url, { signal: ctrl.signal });<br>ctrl.<span class="fn">abort</span>(); <span class="cm">// el fetch lanza AbortError</span><br><br><span class="cm">// Timeout moderno en una línea:</span><br><span class="fn">fetch</span>(url, { signal: AbortSignal.<span class="fn">timeout</span>(<span class="num">5000</span>) });<br><br><span class="cm">// Timeout clásico con Promise.race:</span><br><span class="kw">const</span> timeout = ms => <span class="kw">new</span> Promise((_, rej) => <span class="fn">setTimeout</span>(() => <span class="fn">rej</span>(<span class="kw">new</span> <span class="fn">Error</span>(<span class="str">'Timeout'</span>)), ms));<br><span class="kw">await</span> Promise.<span class="fn">race</span>([<span class="fn">fetch</span>(url), <span class="fn">timeout</span>(<span class="num">5000</span>)]);</div>
+    <p style="margin-top:8px"><strong>Retry con backoff exponencial:</strong> si falla, espera 1s y reintenta; si vuelve a fallar, 2s; luego 4s... Así no machacas un servidor caído.</p>
+  </div>
+
+  <div class="ex-card" id="ex-ab1">
+    <h3><span class="ex-num">1</span>Promise.race como árbitro <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué hace exactamente <code>Promise.race([p1, p2])</code>?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ab1')" data-val="a">Espera a que terminen las dos</button>
+      <button class="opt" onclick="selOpt(this,'ab1')" data-val="b">Se resuelve o rechaza con la PRIMERA promesa que termine, sea éxito o error</button>
+      <button class="opt" onclick="selOpt(this,'ab1')" data-val="c">Devuelve solo las que tengan éxito</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ab1','b','Gana la primera en cruzar la meta, para bien o para mal. Por eso sirve de timeout.','race = carrera.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ab1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ab2">
+    <h3><span class="ex-num">2</span>Timeout real con race <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Construye un timeout: una promesa <code>lenta</code> que tarda 2000ms en resolver y un <code>timeout</code> que rechaza a los 500ms. Enfréntalas con <code>Promise.race</code> dentro de try/catch e imprime el error capturado.</p>
+    <textarea class="code-editor" id="ab2-code" placeholder="const lenta = new Promise(res => setTimeout(() => res('tarde'), 2000));
+const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Timeout!')), 500));
+// try { await Promise.race(...) } catch ..."></textarea>
+    <div class="console-out" id="ab2-out"><div class="line" style="color:var(--text3)">// Salida (espera ~500ms)</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('ab2-code','ab2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('ab2','ab2-code','ab2-out',['Promise.race','catch'],'Timeout','Patrón de producción: nunca esperes a un servidor para siempre.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-ab2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ab3">
+    <h3><span class="ex-num">3</span>Cancelar al usuario impaciente <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Un buscador lanza un fetch por cada letra tecleada. ¿Cuál es el patrón correcto con AbortController?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ab3')" data-val="a">Antes de cada nuevo fetch, llamar a <code>ctrl.abort()</code> del anterior y crear un controller nuevo</button>
+      <button class="opt" onclick="selOpt(this,'ab3')" data-val="b">Dejar que todos los fetch terminen y quedarse con el último que llegue</button>
+      <button class="opt" onclick="selOpt(this,'ab3')" data-val="c">Usar el mismo controller para todos sin abortar nunca</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ab3','a','Abortar la petición obsoleta evita respuestas fuera de orden y ahorra ancho de banda. Un controller solo se puede abortar una vez.','¿Qué pasa si la respuesta de la letra 2 llega después que la de la 5?')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ab3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ab4">
+    <h3><span class="ex-num">4</span>Retry con backoff <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Completa la espera exponencial: en el intento <code>i</code> (empezando en 0) queremos esperar 1000, 2000, 4000, 8000ms...</p>
+    <div class="fill-code"><span class="kw">async function</span> <span class="fn">conReintentos</span>(fn, max = <span class="num">4</span>) {<br>&nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; max; i++) {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">try</span> { <span class="kw">return await</span> <span class="fn">fn</span>(); }<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">catch</span> (e) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">const</span> espera = <span class="num">1000</span> * <input class="ci-inline" id="ab4-b1" placeholder="???" style="width:90px">;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">await new</span> Promise(r => <span class="fn">setTimeout</span>(r, espera));<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;}<br>&nbsp;&nbsp;<span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">'Agotados los reintentos'</span>);<br>}</div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkFill('ab4',['ab4-b1'],[['2**i','2 ** i','math.pow(2,i)','math.pow(2, i)']],'2**i: cada fallo duplica la espera. Así trata las APIs un profesional.')">✓ Comprobar</button><button class="hint-btn" onclick="showHint('h-ab4')">💡 Pista</button></div>
+    <div class="hint-txt" id="h-ab4">Potencias de 2: el operador ** o Math.pow.</div>
+    <div class="feedback" id="fb-ab4"></div>
+  </div>
+</div>
+
+<!-- ============ CLONE/JSON ============ -->
+<div class="panel" id="panel-clone">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🧪 structuredClone & JSON Profundo</div><div class="ex-desc">Copiar objetos parece fácil hasta que un cambio en la copia rompe el original. Deep copy de verdad y los superpoderes ocultos de JSON.</div></div>
+  <div class="theory-box">
+    <p><strong>El problema:</strong> <code>const b = a</code> y el spread <code>{...a}</code> NO copian en profundidad: los objetos anidados se comparten.</p>
+    <div class="cb"><span class="kw">const</span> a = { config: { tema: <span class="str">'oscuro'</span> } };<br><span class="kw">const</span> b = { ...a }; <span class="cm">// copia superficial</span><br>b.config.tema = <span class="str">'claro'</span>;<br>a.config.tema; <span class="cm">// 'claro' ¡también cambió el original!</span><br><br><span class="cm">// Deep copy moderna:</span><br><span class="kw">const</span> c = <span class="fn">structuredClone</span>(a); <span class="cm">// soporta Date, Map, Set, ciclos...</span><br><br><span class="cm">// Truco clásico (con limitaciones):</span><br><span class="kw">const</span> d = JSON.<span class="fn">parse</span>(JSON.<span class="fn">stringify</span>(a)); <span class="cm">// pierde funciones, undefined, Date→string</span></div>
+    <p style="margin-top:8px"><strong>JSON avanzado:</strong> <code>JSON.stringify(obj, replacer, 2)</code> filtra/transforma al serializar; <code>JSON.parse(str, reviver)</code> transforma al leer; un método <code>toJSON()</code> en tu objeto decide cómo se serializa.</p>
+  </div>
+
+  <div class="ex-card" id="ex-cl1">
+    <h3><span class="ex-num">1</span>Copia traicionera <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Tras <code>const copia = {...original}</code>, ¿qué propiedades quedan COMPARTIDAS entre ambos?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'cl1')" data-val="a">Ninguna, es una copia total</button>
+      <button class="opt" onclick="selOpt(this,'cl1')" data-val="b">Los objetos y arrays anidados (solo se copia la referencia)</button>
+      <button class="opt" onclick="selOpt(this,'cl1')" data-val="c">Solo los strings</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('cl1','b','El spread copia el primer nivel; lo anidado sigue siendo la MISMA referencia en memoria.','Shallow copy = un nivel.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-cl1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-cl2">
+    <h3><span class="ex-num">2</span>Demuéstralo con structuredClone <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Crea un objeto con otro anidado, clónalo con <code>structuredClone</code>, modifica la copia anidada e imprime ambos para demostrar que el original NO cambió.</p>
+    <textarea class="code-editor" id="cl2-code" placeholder="const original = { stats: { vida: 100 } };
+const copia = structuredClone(original);
+copia.stats.vida = 1;
+console.log(original.stats.vida, copia.stats.vida);"></textarea>
+    <div class="console-out" id="cl2-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('cl2-code','cl2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('cl2','cl2-code','cl2-out',['structuredClone'],'100','Clon independiente de verdad: ni Date ni Map ni ciclos lo asustan.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-cl2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-cl3">
+    <h3><span class="ex-num">3</span>Los agujeros del truco JSON <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Qué se PIERDE o se corrompe al clonar con <code>JSON.parse(JSON.stringify(obj))</code>?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'cl3')" data-val="a">Funciones y undefined desaparecen; Date se convierte en string; Map/Set se vacían; los ciclos lanzan error</button>
+      <button class="opt" onclick="selOpt(this,'cl3')" data-val="b">Nada, es idéntico a structuredClone</button>
+      <button class="opt" onclick="selOpt(this,'cl3')" data-val="c">Solo se pierden los números decimales</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('cl3','a','JSON solo conoce strings, números, booleanos, null, arrays y objetos planos. Todo lo demás muere por el camino.','JSON es un formato de texto, no de memoria.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-cl3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-cl4">
+    <h3><span class="ex-num">4</span>replacer y reviver <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Usa el segundo parámetro de <code>JSON.stringify</code> (replacer en forma de array) para serializar SOLO las propiedades <code>nombre</code> y <code>nivel</code> de un objeto que además tenga <code>password</code>. Imprime el resultado.</p>
+    <textarea class="code-editor" id="cl4-code" placeholder="const user = { nombre: 'Igor', nivel: 99, password: 'secreta' };
+console.log(JSON.stringify(user, ['nombre', 'nivel']));"></textarea>
+    <div class="console-out" id="cl4-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('cl4-code','cl4-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('cl4','cl4-code','cl4-out',['stringify','nombre'],'nivel','El replacer como lista blanca: así nunca filtras un password por accidente.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-cl4"></div>
+  </div>
+</div>
+<!-- ============ FETCH AVANZADO ============ -->
+<div class="panel" id="panel-fetchpro">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">📡 Fetch Avanzado</div><div class="ex-desc">Hasta ahora solo has hecho GET. Las apps reales envían datos: POST, PUT, DELETE, headers, FormData y la trampa de los códigos de estado.</div></div>
+  <div class="theory-box">
+    <p><strong>Anatomía de un POST:</strong></p>
+    <div class="cb"><span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">'https://api.ejemplo.com/usuarios'</span>, {<br>&nbsp;&nbsp;method: <span class="str">'POST'</span>,<br>&nbsp;&nbsp;headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> },<br>&nbsp;&nbsp;body: JSON.<span class="fn">stringify</span>({ nombre: <span class="str">'Igor'</span> })<br>});<br><br><span class="cm">// ⚠️ fetch NO lanza error con un 404 o 500. Solo con fallos de red.</span><br><span class="kw">if</span> (!res.ok) <span class="kw">throw new</span> <span class="fn">Error</span>(<span class="str">`HTTP <span class="var">${res.status}</span>`</span>);<br><span class="kw">const</span> datos = <span class="kw">await</span> res.<span class="fn">json</span>();</div>
+    <p style="margin-top:8px"><strong>Verbos HTTP:</strong> GET lee, POST crea, PUT reemplaza, PATCH modifica parcialmente, DELETE elimina. <strong>FormData</strong> envía formularios y archivos sin fijar Content-Type a mano.</p>
+  </div>
+
+  <div class="ex-card" id="ex-fp1">
+    <h3><span class="ex-num">1</span>La trampa del 404 <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Si el servidor responde con un 404, ¿qué hace <code>fetch</code>?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'fp1')" data-val="a">Lanza una excepción que captura el catch</button>
+      <button class="opt" onclick="selOpt(this,'fp1')" data-val="b">Resuelve normalmente con <code>res.ok === false</code> y <code>res.status === 404</code></button>
+      <button class="opt" onclick="selOpt(this,'fp1')" data-val="c">Reintenta automáticamente 3 veces</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('fp1','b','Para fetch, recibir un 404 ES una respuesta exitosa de red. Comprobar res.ok es obligación tuya.','El catch solo salta sin conexión o con CORS bloqueado.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-fp1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-fp2">
+    <h3><span class="ex-num">2</span>POST real a una API de pruebas <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Haz un POST real a <code>https://jsonplaceholder.typicode.com/posts</code> con body <code>{ title: 'IGORSCRIPT' }</code>, header JSON, y muestra el <code>id</code> que devuelve el servidor.</p>
+    <textarea class="code-editor" id="fp2-code" placeholder="const res = await fetch('https://jsonplaceholder.typicode.com/posts', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ title: 'IGORSCRIPT' })
+});
+const data = await res.json();
+console.log(data.id);"></textarea>
+    <div class="console-out" id="fp2-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('fp2-code','fp2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('fp2','fp2-code','fp2-out',['POST','stringify','headers'],'101','Acabas de crear un recurso en un servidor real (de mentira, pero real).')">✓ Validar</button></div>
+    <div class="feedback" id="fb-fp2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-fp3">
+    <h3><span class="ex-num">3</span>Verbos a su sitio <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Arrastra los verbos al orden: crear → modificar parcialmente → eliminar.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><div style="font-size:9px;color:var(--text3);margin-bottom:5px;font-family:var(--font-c)">VERBOS</div>
+        <div id="fp3-pool" class="drag-area" style="flex-direction:column;min-height:110px">
+          <div class="drag-item" draggable="true" data-val="delete">DELETE</div>
+          <div class="drag-item" draggable="true" data-val="post">POST</div>
+          <div class="drag-item" draggable="true" data-val="patch">PATCH</div>
+        </div></div>
+      <div><div style="font-size:9px;color:var(--text3);margin-bottom:5px;font-family:var(--font-c)">ORDEN: crear → modificar → eliminar</div>
+        <div id="fp3-target" class="drag-area" style="flex-direction:column;min-height:110px"></div></div>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkDrag('fp3',['post','patch','delete'],'POST crea, PATCH retoca, DELETE borra. PUT (no estaba) reemplaza entero.')">✓ Comprobar</button><button class="btn btn-s" onclick="resetDrag('fp3-pool','fp3-target')">↺</button></div>
+    <div class="feedback" id="fb-fp3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-fp4">
+    <h3><span class="ex-num">4</span>Manejo profesional de errores <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Haz fetch a <code>https://jsonplaceholder.typicode.com/posts/99999999</code> (no existe). Comprueba <code>res.ok</code>, lanza un Error con el status y captúralo imprimiendo el mensaje.</p>
+    <textarea class="code-editor" id="fp4-code" placeholder="try {
+  const res = await fetch('https://jsonplaceholder.typicode.com/posts/99999999');
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+} catch (e) {
+  console.log('Capturado:', e.message);
+}"></textarea>
+    <div class="console-out" id="fp4-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('fp4-code','fp4-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('fp4','fp4-code','fp4-out',['res.ok','throw'],'404','Este if(!res.ok) está en TODO código de producción serio.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-fp4"></div>
+  </div>
+</div>
+
+<!-- ============ OBSERVERS ============ -->
+<div class="panel" id="panel-observers">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">👁 MutationObserver & ResizeObserver</div><div class="ex-desc">En vez de preguntar cada segundo "¿ha cambiado algo?", el navegador te avisa. Los observers son la forma eficiente de reaccionar a cambios.</div></div>
+  <div class="theory-box">
+    <p><strong>MutationObserver:</strong> avisa cuando cambia el DOM (nodos añadidos/eliminados, atributos, texto).</p>
+    <div class="cb"><span class="kw">const</span> obs = <span class="kw">new</span> <span class="fn">MutationObserver</span>(mutaciones => {<br>&nbsp;&nbsp;mutaciones.<span class="fn">forEach</span>(m => <span class="fn">console.log</span>(<span class="str">'cambio:'</span>, m.type));<br>});<br>obs.<span class="fn">observe</span>(elemento, { childList: <span class="kw">true</span>, attributes: <span class="kw">true</span>, subtree: <span class="kw">true</span> });<br>obs.<span class="fn">disconnect</span>(); <span class="cm">// siempre desconecta al terminar</span></div>
+    <p style="margin-top:8px"><strong>ResizeObserver:</strong> avisa cuando un ELEMENTO cambia de tamaño (no solo la ventana como el viejo evento resize). <strong>IntersectionObserver</strong> (visto en los proyectos guiados) completa el trío: avisa cuando algo entra en pantalla.</p>
+  </div>
+
+  <div class="ex-card" id="ex-ob1">
+    <h3><span class="ex-num">1</span>Demo viva: MutationObserver <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Pulsa los botones para mutar la caja. Un MutationObserver real está escuchando y registra cada cambio en la consola.</p>
+    <div style="background:var(--surface2);border-radius:10px;padding:16px;margin:10px 0;text-align:center" id="ob1-caja"><span id="ob1-contenido">Caja vigilada 👁</span></div>
+    <div class="ctrl" style="margin-bottom:8px">
+      <button class="btn btn-s" onclick="document.getElementById('ob1-caja').appendChild(Object.assign(document.createElement('span'),{textContent:' +hijo'}))">+ Añadir nodo</button>
+      <button class="btn btn-s" onclick="document.getElementById('ob1-caja').setAttribute('data-mutado', Date.now())">Cambiar atributo</button>
+      <button class="btn btn-s" onclick="document.getElementById('ob1-contenido').textContent='Texto mutado '+Math.floor(Math.random()*100)">Cambiar texto</button>
+    </div>
+    <div class="console-out" id="ob1-out"><div class="line" style="color:var(--text3)">// El observer reporta aquí</div></div>
+    <div class="feedback" id="fb-ob1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ob2">
+    <h3><span class="ex-num">2</span>¿Qué observer para qué? <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Quieres cargar imágenes solo cuando el usuario hace scroll hasta ellas (lazy loading). ¿Qué observer usas?</p>
+    <div class="opts" style="grid-template-columns:repeat(3,1fr)">
+      <button class="opt" onclick="selOpt(this,'ob2')" data-val="a">MutationObserver</button>
+      <button class="opt" onclick="selOpt(this,'ob2')" data-val="b">IntersectionObserver</button>
+      <button class="opt" onclick="selOpt(this,'ob2')" data-val="c">ResizeObserver</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ob2','b','IntersectionObserver detecta cuándo un elemento entra en el viewport: lazy loading, scroll infinito, animaciones al aparecer.','Intersección entre elemento y pantalla.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ob2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ob3">
+    <h3><span class="ex-num">3</span>El error de novato <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Cuál era la alternativa ANTES de los observers, y por qué es mala?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ob3')" data-val="a">Polling: un setInterval comprobando cambios cada X ms. Malgasta CPU comprobando aunque no cambie nada</button>
+      <button class="opt" onclick="selOpt(this,'ob3')" data-val="b">No había alternativa, era imposible detectar cambios</button>
+      <button class="opt" onclick="selOpt(this,'ob3')" data-val="c">Recargar la página entera cada segundo</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ob3','a','Pasar de polling a observers es pasar de preguntar sin parar a que te avisen: el patrón push siempre gana en eficiencia.','Conecta con lo del memory leak del setInterval.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ob3"></div>
+  </div>
+</div>
+
+<!-- ============ SEGURIDAD ============ -->
+<div class="panel" id="panel-seguridad">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🛡 Seguridad & XSS</div><div class="ex-desc">Una sola línea de innerHTML descuidada puede regalar las cuentas de tus usuarios. Aprende a pensar como atacante para defender como profesional.</div></div>
+  <div class="theory-box">
+    <p><strong>XSS (Cross-Site Scripting):</strong> el atacante consigue que TU página ejecute SU JavaScript, normalmente colando código en un campo de texto que luego se pinta con innerHTML.</p>
+    <div class="cb"><span class="cm">// ☠️ VULNERABLE: el input del usuario se interpreta como HTML</span><br>div.innerHTML = <span class="str">`Hola <span class="var">${nombreUsuario}</span>`</span>;<br><span class="cm">// si nombreUsuario = '&lt;img src=x onerror="robarCookies()"&gt;' → ejecuta código</span><br><br><span class="cm">// ✅ SEGURO: textContent trata todo como texto plano</span><br>div.textContent = <span class="str">`Hola <span class="var">${nombreUsuario}</span>`</span>;<br><br><span class="cm">// Si NECESITAS HTML: sanitiza (DOMPurify) o escapa los caracteres &lt; &gt; &amp;</span></div>
+    <p style="margin-top:8px"><strong>Reglas de oro:</strong> nunca metas input de usuario en innerHTML, eval, setTimeout(string) ni en URLs javascript:. Las cookies sensibles llevan HttpOnly para que JS no pueda leerlas.</p>
+  </div>
+
+  <div class="ex-card" id="ex-se1">
+    <h3><span class="ex-num">1</span>Detecta la vulnerabilidad <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Cuál de estas líneas es vulnerable a XSS si <code>comentario</code> viene de un usuario?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'se1')" data-val="a"><code>p.textContent = comentario</code></button>
+      <button class="opt" onclick="selOpt(this,'se1')" data-val="b"><code>p.innerHTML = comentario</code></button>
+      <button class="opt" onclick="selOpt(this,'se1')" data-val="c"><code>console.log(comentario)</code></button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('se1','b','innerHTML interpreta etiquetas: un &lt;script&gt; o un onerror dentro del comentario se ejecuta en el navegador de TODAS tus víctimas.','textContent nunca interpreta nada.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-se1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-se2">
+    <h3><span class="ex-num">2</span>Laboratorio: ataca tu propia caja <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Escribe en el input un "ataque" inofensivo como <code>&lt;b style="color:red"&gt;HACKEADO&lt;/b&gt;</code> y compara qué hace cada modo. Es un sandbox seguro: experimenta.</p>
+    <input class="ci" id="se2-input" placeholder='<b style="color:red">HACKEADO</b>' style="width:100%;margin-bottom:8px">
+    <div class="ctrl" style="margin-bottom:8px">
+      <button class="btn btn-s" onclick="document.getElementById('se2-render').innerHTML=document.getElementById('se2-input').value;chkSE2(true)">Renderizar con innerHTML ☠️</button>
+      <button class="btn btn-s" onclick="document.getElementById('se2-render').textContent=document.getElementById('se2-input').value;chkSE2(false)">Renderizar con textContent ✅</button>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px;min-height:44px;font-size:13px" id="se2-render">Resultado aquí</div>
+    <div class="feedback" id="fb-se2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-se3">
+    <h3><span class="ex-num">3</span>Escapar HTML a mano <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Escribe una función <code>escapar(str)</code> que reemplace <code>&amp;</code> por <code>&amp;amp;</code>, <code>&lt;</code> por <code>&amp;lt;</code> y <code>&gt;</code> por <code>&amp;gt;</code> (en ese orden, ¿por qué importa?). Pruébala con <code>'&lt;script&gt;'</code> e imprime el resultado.</p>
+    <textarea class="code-editor" id="se3-code" placeholder="function escapar(str) {
+  return str.replaceAll('&', '&amp;')...
+}
+console.log(escapar('&lt;script&gt;'));"></textarea>
+    <div class="console-out" id="se3-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('se3-code','se3-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('se3','se3-code','se3-out',['replaceAll|replace('],'&lt;','El & va PRIMERO: si no, escaparías los & de los propios &lt; que acabas de crear.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-se3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-se4">
+    <h3><span class="ex-num">4</span>eval es el enemigo <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Por qué <code>eval(inputUsuario)</code> es la peor línea de código posible?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'se4')" data-val="a">Ejecuta cualquier string como código con los permisos completos de tu página: el usuario puede hacer literalmente todo lo que tu JS puede hacer</button>
+      <button class="opt" onclick="selOpt(this,'se4')" data-val="b">Es lento, pero seguro</button>
+      <button class="opt" onclick="selOpt(this,'se4')" data-val="c">Solo funciona en Internet Explorer</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('se4','a','eval convierte texto en código ejecutable. Input del usuario + eval = entregar las llaves de tu app.','Piensa qué podría escribir un usuario malicioso ahí.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-se4"></div>
+  </div>
+  <div class="curiosity-box"><p>El simulador de esta misma página usa new Function (primo de eval) de forma controlada: solo ejecuta TU propio código en TU propio navegador. El peligro es ejecutar código de OTROS en el navegador de tus usuarios.</p></div>
+</div>
+
+<!-- ============ INTL & ES2022 ============ -->
+<div class="panel" id="panel-intl">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">🌍 Intl Moderno & ES2022+</div><div class="ex-desc">Las novedades que la mayoría de devs aún no conoce: segmentar texto respetando emojis, listas en lenguaje natural, y los nuevos métodos de objeto y array.</div></div>
+  <div class="theory-box">
+    <div class="cb"><span class="cm">// Intl.Segmenter: trocear texto SIN romper emojis ni acentos</span><br><span class="kw">const</span> seg = <span class="kw">new</span> Intl.<span class="fn">Segmenter</span>(<span class="str">'es'</span>, { granularity: <span class="str">'grapheme'</span> });<br>[...seg.<span class="fn">segment</span>(<span class="str">'👨‍👩‍👧'</span>)].length <span class="cm">// 1 ✓ ('👨‍👩‍👧'.length da 8 ✗)</span><br><br><span class="cm">// Intl.ListFormat: listas humanas</span><br><span class="kw">new</span> Intl.<span class="fn">ListFormat</span>(<span class="str">'es'</span>).<span class="fn">format</span>([<span class="str">'pan'</span>,<span class="str">'queso'</span>,<span class="str">'vino'</span>])<br><span class="cm">// "pan, queso y vino" — con la 'y' puesta según el idioma</span><br><br><span class="cm">// Object.hasOwn: el sustituto seguro de hasOwnProperty</span><br>Object.<span class="fn">hasOwn</span>(obj, <span class="str">'clave'</span>)<br><br><span class="cm">// at(): índices negativos por fin</span><br>[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="fn">at</span>(-<span class="num">1</span>) <span class="cm">// 3 — el último, sin arr[arr.length-1]</span></div>
+  </div>
+
+  <div class="ex-card" id="ex-in1">
+    <h3><span class="ex-num">1</span>El emoji que medía 8 <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">¿Por qué <code>'👨‍👩‍👧'.length</code> devuelve 8 y no 1?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'in1')" data-val="a">length cuenta unidades UTF-16, y ese emoji familiar son varios emojis unidos por caracteres invisibles (ZWJ)</button>
+      <button class="opt" onclick="selOpt(this,'in1')" data-val="b">Es un bug de Chrome</button>
+      <button class="opt" onclick="selOpt(this,'in1')" data-val="c">Los emojis siempre miden 8</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('in1','a','La familia son 3 emojis + 2 conectores invisibles, codificados en unidades UTF-16. Intl.Segmenter cuenta lo que el humano VE.','Para contar caracteres visibles, length miente.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-in1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-in2">
+    <h3><span class="ex-num">2</span>Lista humana <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Usa <code>Intl.ListFormat</code> en español para imprimir la frase natural con el array <code>['HTML', 'CSS', 'JavaScript']</code>. Prueba también el tipo <code>{ type: 'disjunction' }</code> para obtener "o" en vez de "y".</p>
+    <textarea class="code-editor" id="in2-code" placeholder="const lf = new Intl.ListFormat('es');
+console.log(lf.format(['HTML', 'CSS', 'JavaScript']));"></textarea>
+    <div class="console-out" id="in2-out"><div class="line" style="color:var(--text3)">// Salida</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="runSim('in2-code','in2-out')">▶ Ejecutar</button><button class="btn btn-s" onclick="chkCode('in2','in2-code','in2-out',['ListFormat'],'JavaScript','Nunca más concatenar comas y la última y a mano.')">✓ Validar</button></div>
+    <div class="feedback" id="fb-in2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-in3">
+    <h3><span class="ex-num">3</span>at() negativo <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">¿Qué devuelve <code>'IGORSCRIPT'.at(-2)</code>?</p>
+    <div class="opts" style="grid-template-columns:repeat(4,1fr)">
+      <button class="opt" onclick="selOpt(this,'in3')" data-val="a">'T'</button>
+      <button class="opt" onclick="selOpt(this,'in3')" data-val="b">'P'</button>
+      <button class="opt" onclick="selOpt(this,'in3')" data-val="c">'I'</button>
+      <button class="opt" onclick="selOpt(this,'in3')" data-val="d">undefined</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('in3','b','at(-1) es la T final, at(-2) la P. Funciona en strings y arrays.','Cuenta desde el final empezando en -1.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-in3"></div>
+  </div>
+
+  <div class="ex-card" id="ex-in4">
+    <h3><span class="ex-num">4</span>Object.hasOwn vs hasOwnProperty <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">¿Por qué <code>Object.hasOwn(obj, 'x')</code> es más seguro que <code>obj.hasOwnProperty('x')</code>?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'in4')" data-val="a">Funciona incluso con objetos creados con <code>Object.create(null)</code> (sin prototipo) o que hayan sobrescrito hasOwnProperty</button>
+      <button class="opt" onclick="selOpt(this,'in4')" data-val="b">Es más rápido en bucles</button>
+      <button class="opt" onclick="selOpt(this,'in4')" data-val="c">No hay diferencia, es solo más corto</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('in4','a','obj.hasOwnProperty viene del prototipo... que puede no existir o estar saboteado. La función estática no depende del objeto. Conecta con el módulo de Prototipos.','¿Y si el objeto no tiene prototipo?')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-in4"></div>
+  </div>
+</div>
+
+<!-- ============ A11Y ============ -->
+<div class="panel" id="panel-a11y">
+  <div class="ex-hdr"><div class="breadcrumb" onclick="showPanel('home')">← Volver</div><div class="ex-title">♿ Accesibilidad con JavaScript</div><div class="ex-desc">Tu JS puede hacer una web usable para todos... o romperla para quien usa teclado o lector de pantalla. Esto distingue a un profesional.</div></div>
+  <div class="theory-box">
+    <p><strong>Tres responsabilidades del JS accesible:</strong></p>
+    <ul>
+      <li><strong>Focus management:</strong> al abrir un modal, mueve el foco dentro con <code>elemento.focus()</code>; al cerrarlo, devuélvelo a donde estaba. Atrapa el Tab dentro del modal.</li>
+      <li><strong>ARIA dinámico:</strong> si tu JS cambia el estado, actualiza el atributo: <code>btn.setAttribute('aria-expanded', 'true')</code>. Las regiones <code>aria-live</code> anuncian cambios al lector de pantalla.</li>
+      <li><strong>Teclado:</strong> todo lo clicable debe funcionar con Enter/Espacio. Si usas un div como botón (mal), necesitas <code>tabindex="0"</code> + listener de teclado. Mejor: usa <code>&lt;button&gt;</code>.</li>
+    </ul>
+  </div>
+  <div class="tip-box"><p>La primera regla de ARIA: no uses ARIA si un elemento HTML nativo ya lo hace. Un &lt;button&gt; real te regala foco, teclado y semántica gratis.</p></div>
+
+  <div class="ex-card" id="ex-ay1">
+    <h3><span class="ex-num">1</span>El div-botón <span class="diff a" style="margin-left:auto">Avanzado</span></h3>
+    <p class="ex-q">Un compañero ha hecho <code>&lt;div onclick="comprar()"&gt;Comprar&lt;/div&gt;</code>. ¿Qué usuarios NO pueden comprar?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ay1')" data-val="a">Los que navegan con teclado (no recibe foco) y los de lector de pantalla (no se anuncia como botón)</button>
+      <button class="opt" onclick="selOpt(this,'ay1')" data-val="b">Solo los de Internet Explorer</button>
+      <button class="opt" onclick="selOpt(this,'ay1')" data-val="c">Ninguno, funciona igual que un botón</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ay1','a','Un div no es enfocable ni anuncia su rol. Con <button> todo eso viene de serie.','Prueba a llegar a un div con la tecla Tab.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ay1"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ay2">
+    <h3><span class="ex-num">2</span>aria-expanded en vivo <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Este acordeón ya funciona visualmente. Pulsa el botón y observa abajo cómo el JS sincroniza <code>aria-expanded</code> con el estado real. Sin ese atributo, el lector de pantalla no sabe si está abierto.</p>
+    <button class="btn btn-s" id="ay2-btn" aria-expanded="false" onclick="toggleAY2()">▸ Detalles del pedido</button>
+    <div id="ay2-panel" style="display:none;background:var(--surface2);border-radius:8px;padding:12px;margin-top:8px;font-size:12px;color:var(--text2)">3x Pociones de maná · Envío gratis</div>
+    <div class="console-out" id="ay2-out"><div class="line" style="color:var(--text3)">// Estado ARIA actual: aria-expanded="false"</div></div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkAY2()">✓ Validar (ábrelo y ciérralo al menos una vez)</button></div>
+    <div class="feedback" id="fb-ay2"></div>
+  </div>
+
+  <div class="ex-card" id="ex-ay3">
+    <h3><span class="ex-num">3</span>Foco en el modal <span class="diff x" style="margin-left:auto">Experto</span></h3>
+    <p class="ex-q">Al abrir un modal con JS, ¿qué tres cosas debe hacer tu código con el foco?</p>
+    <div class="opts">
+      <button class="opt" onclick="selOpt(this,'ay3')" data-val="a">Guardar el elemento activo, mover el foco dentro del modal, y al cerrar devolverlo al elemento guardado</button>
+      <button class="opt" onclick="selOpt(this,'ay3')" data-val="b">Quitar el foco de toda la página con blur()</button>
+      <button class="opt" onclick="selOpt(this,'ay3')" data-val="c">Nada, el navegador lo gestiona solo</button>
+    </div>
+    <div class="ctrl"><button class="btn btn-p" onclick="chkOpt('ay3','a','document.activeElement → focus() al modal → focus() de vuelta al cerrar. Sin esto, el usuario de teclado se queda perdido detrás del modal.','Piensa dónde queda el cursor invisible del teclado.')">✓ Comprobar</button></div>
+    <div class="feedback" id="fb-ay3"></div>
+  </div>
+</div>
+
+</div><!-- /main -->
+<script>
+// ===== SISTEMA DE PROGRESO COMPARTIDO (igor_progress_v4) =====
+// Filosofía incremental también en los datos: nunca se borra nada de lo guardado,
+// solo se añade. Se preservan campos desconocidos de otros volúmenes.
+const SHARED_KEY = 'igor_progress_v4';
+const VOL_PREFIX = 'v7-';
+const TOTAL = 63;
+const MODULES = {
+  eventloop:['el1','el2','el3','el4','el5'],
+  protos:['pr1','pr2','pr3','pr4','pr5'],
+  this:['th1','th2','th3','th4','th5'],
+  coercion:['co1','co2','co3','co4','co5'],
+  memoria:['me1','me2','me3','me4'],
+  numeros:['nu1','nu2','nu3','nu4'],
+  recursion:['re1','re2','re3','re4'],
+  eventos:['ev1','ev2','ev3','ev4','ev5'],
+  abort:['ab1','ab2','ab3','ab4'],
+  clone:['cl1','cl2','cl3','cl4'],
+  fetchpro:['fp1','fp2','fp3','fp4'],
+  observers:['ob1','ob2','ob3'],
+  seguridad:['se1','se2','se3','se4'],
+  intl:['in1','in2','in3','in4'],
+  a11y:['ay1','ay2','ay3']
+};
+
+let S = { xp:0, completed:new Set(), streak:0, opts:{}, _raw:{} };
+
+function loadProgress(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(SHARED_KEY) || '{}');
+    S._raw = raw; // se preserva TODO lo de otros volúmenes
+    S.xp = Number(raw.xp) || 0;
+    S.completed = new Set(Array.isArray(raw.completed) ? raw.completed : []);
+    S.streak = Number(raw.streak) || 0;
+  }catch(e){ console.warn('Progreso ilegible, empezando limpio sin sobrescribir aún.'); }
+  updateUI();
+}
+function saveProgress(){
+  try{
+    const out = Object.assign({}, S._raw, {
+      xp: S.xp,
+      completed: [...S.completed],
+      streak: S.streak,
+      lastSeen: new Date().toISOString().slice(0,10)
+    });
+    localStorage.setItem(SHARED_KEY, JSON.stringify(out));
+  }catch(e){}
+}
+function volDone(){ return [...S.completed].filter(id=>id.startsWith(VOL_PREFIX)).length; }
+function award(amt, shortId){
+  const id = VOL_PREFIX + shortId;
+  if(S.completed.has(id)) return false;
+  S.completed.add(id); S.xp += amt; S.streak++;
+  if(S.streak === 5){ S.xp += 10; showToast('🔥 Racha x5! +10 XP bonus','xp'); }
+  updateUI(); showXP(amt); saveProgress();
+  return true;
+}
+function penalty(){ S.streak = 0; updateUI(); saveProgress(); }
+function updateUI(){
+  const done = volDone();
+  const pct = Math.round(done/TOTAL*100);
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('total-ip',S.xp); set('total-done',done); set('total-streak',S.streak);
+  const pf=document.getElementById('prog-fill'); if(pf)pf.style.width=pct+'%';
+  set('prog-pct',pct+'%');
+  for(const [mod,ids] of Object.entries(MODULES)){
+    const nav=document.getElementById('nav-'+mod);
+    if(nav && ids.every(i=>S.completed.has(VOL_PREFIX+i))) nav.classList.add('done');
+  }
+}
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const p=document.getElementById('panel-'+id), n=document.getElementById('nav-'+id);
+  if(p)p.classList.add('active'); if(n)n.classList.add('active');
+  window.scrollTo(0,0);
+  document.getElementById('sidebar').classList.remove('open');
+}
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  document.getElementById('t-icon').textContent={success:'✅',error:'❌',xp:'⭐',warning:'⚠️'}[type]||'✓';
+  document.getElementById('t-msg').textContent=msg;
+  t.className='toast show '+type; setTimeout(()=>t.className='toast',3000);
+}
+function showXP(amt){
+  const e=document.createElement('div'); e.className='xp-float'; e.textContent='+'+amt+' XP';
+  e.style.left=(Math.random()*40+30)+'%'; e.style.top='60%';
+  document.body.appendChild(e); setTimeout(()=>e.remove(),1300);
+}
+function showHint(id){ const e=document.getElementById(id); if(e)e.classList.toggle('show'); }
+function showFB(id,type,msg){
+  const el=document.getElementById('fb-'+id); if(!el)return;
+  const ic={success:'✅',error:'❌',warning:'⚠️'};
+  el.className='feedback show '+type;
+  el.innerHTML=`<span>${ic[type]||'ℹ️'}</span><span>${msg}</span>`;
+  const card=el.closest('.ex-card');
+  if(card){card.classList.remove('correct','incorrect');card.classList.add(type==='success'?'correct':'incorrect');}
+}
+function selOpt(btn,grp){
+  btn.closest('.opts').querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); S.opts[grp]=btn.dataset.val;
+}
+// Comprobador genérico de opción múltiple
+function chkOpt(id, correcto, msgOk, msgKo){
+  if(!S.opts[id]){ showFB(id,'warning','Selecciona una opción primero.'); return; }
+  if(S.opts[id]===correcto){
+    showFB(id,'success', msgOk + (award(30,id) ? ' (+30 XP)' : ''));
+  } else { penalty(); showFB(id,'error', msgKo||'No es esa. Vuelve a leer la teoría.'); }
+}
+// Comprobador de huecos rellenables. answers: array de arrays de respuestas válidas (lowercase)
+function chkFill(id, inputIds, answers, msgOk){
+  const norm=v=>v.toLowerCase().replace(/\s+/g,'');
+  const ok = inputIds.every((iid,k)=>{
+    const v=norm(document.getElementById(iid).value||'');
+    return answers[k].some(a=>norm(a)===v);
+  });
+  if(ok){ showFB(id,'success', msgOk + (award(30,id) ? ' (+30 XP)' : '')); }
+  else { penalty(); showFB(id,'error','Algún hueco no es correcto. Usa la pista.'); }
+}
+// Comprobador drag&drop por orden
+function chkDrag(id, orden, msgOk){
+  const items=[...document.getElementById(id+'-target').querySelectorAll('.drag-item')].map(i=>i.dataset.val);
+  if(items.length===orden.length && items.every((v,i)=>v===orden[i])){
+    showFB(id,'success', msgOk + (award(25,id) ? ' (+25 XP)' : ''));
+  } else { penalty(); showFB(id,'error','El orden no es correcto. Arrastra de nuevo.'); }
+}
+// Comprobador de código: requiere patrones en el código (admite alternativas con |) y un texto en la salida
+function chkCode(id, codeId, outId, patrones, enSalida, msgOk){
+  const code=(document.getElementById(codeId).value||'').toLowerCase();
+  const out=(document.getElementById(outId).textContent||'').toLowerCase();
+  const faltan=patrones.filter(p=>!p.toLowerCase().split('|').some(alt=>code.includes(alt)));
+  if(faltan.length){ showFB(id,'warning','Tu código debe usar: '+faltan.join(', ')); return; }
+  if(!out.includes(String(enSalida).toLowerCase())){ showFB(id,'warning','Ejecuta el código primero: la salida esperada no aparece en la consola.'); return; }
+  showFB(id,'success', msgOk + (award(30,id) ? ' (+30 XP)' : ''));
+}
+// ===== SIMULADOR con soporte async/await y fetch real =====
+function simLog(outId){
+  const out=document.getElementById(outId);
+  return (...args)=>{
+    const line=document.createElement('div'); line.className='line';
+    line.textContent=args.map(a=>{
+      if(typeof a==='object'&&a!==null){ try{return JSON.stringify(a);}catch(e){return String(a);} }
+      return String(a);
+    }).join(' ');
+    out.appendChild(line); out.scrollTop=out.scrollHeight;
+  };
+}
+async function runSim(codeId, outId){
+  const out=document.getElementById(outId); out.innerHTML='';
+  const log=simLog(outId);
+  const code=document.getElementById(codeId).value||'';
+  try{
+    const fn=new Function('console', `return (async()=>{ ${code}\n })();`);
+    await fn({log, error:(...a)=>{const l=document.createElement('div');l.className='line err';l.textContent=a.join(' ');out.appendChild(l);}, warn:log, info:log});
+  }catch(e){
+    const l=document.createElement('div'); l.className='line err'; l.textContent='❌ '+e.name+': '+e.message; out.appendChild(l);
+  }
+}
+// ===== DRAG & DROP =====
+function setupDrag(sid,tid){
+  const pool=document.getElementById(sid),target=document.getElementById(tid);
+  if(!pool||!target)return; let dragged=null;
+  [pool,target].forEach(c=>{
+    c.addEventListener('dragstart',e=>{ if(e.target.classList.contains('drag-item')){dragged=e.target;setTimeout(()=>dragged&&dragged.classList.add('dragging'),0);} });
+    c.addEventListener('dragend',()=>{if(dragged)dragged.classList.remove('dragging');dragged=null;});
+    c.addEventListener('dragover',e=>{e.preventDefault();c.classList.add('over');});
+    c.addEventListener('dragleave',()=>c.classList.remove('over'));
+    c.addEventListener('drop',e=>{e.preventDefault();c.classList.remove('over');if(dragged)c.appendChild(dragged);});
+  });
+}
+function resetDrag(sid,tid){
+  const pool=document.getElementById(sid);
+  [...document.getElementById(tid).querySelectorAll('.drag-item')].forEach(i=>pool.appendChild(i));
+}
+// ===== VISUALIZADOR EVENT LOOP =====
+let elTimer=null;
+function resetELViz(){
+  if(elTimer){clearTimeout(elTimer);elTimer=null;}
+  ['el-stack','el-micro','el-macro','el-out'].forEach(id=>document.getElementById(id).innerHTML='');
+}
+function elTask(zone,txt,cls=''){
+  const d=document.createElement('div'); d.className='el-task '+cls; d.textContent=txt;
+  document.getElementById(zone).appendChild(d); return d;
+}
+function runELViz(){
+  resetELViz();
+  const pasos=[
+    ()=>{ elTask('el-stack',"console.log('1')",'active'); },
+    ()=>{ document.getElementById('el-stack').innerHTML=''; elTask('el-out','1'); },
+    ()=>{ elTask('el-stack','setTimeout(...)','active'); },
+    ()=>{ document.getElementById('el-stack').innerHTML=''; elTask('el-macro',"() => log('2')"); },
+    ()=>{ elTask('el-stack','Promise.then(...)','active'); },
+    ()=>{ document.getElementById('el-stack').innerHTML=''; elTask('el-micro',"() => log('3')"); },
+    ()=>{ elTask('el-stack',"console.log('4')",'active'); },
+    ()=>{ document.getElementById('el-stack').innerHTML=''; elTask('el-out','4'); },
+    ()=>{ const m=document.getElementById('el-micro').firstChild; if(m)m.classList.add('active'); },
+    ()=>{ document.getElementById('el-micro').innerHTML=''; elTask('el-out','3  ← microtarea primero'); },
+    ()=>{ const m=document.getElementById('el-macro').firstChild; if(m)m.classList.add('active'); },
+    ()=>{ document.getElementById('el-macro').innerHTML=''; elTask('el-out','2  ← macrotarea al final');
+          showFB('el1','success','Has visto el event loop en acción.'+(award(30,'el1')?' (+30 XP)':'')); }
+  ];
+  let i=0;
+  const tick=()=>{ if(i<pasos.length){ pasos[i++](); elTimer=setTimeout(tick,850); } };
+  tick();
+}
+// ===== EJERCICIO EL4 =====
+function chkEL4(){
+  const out=(document.getElementById('el4-out').textContent||'').replace(/\s+/g,' ');
+  const code=(document.getElementById('el4-code').value||'');
+  const i1=out.indexOf('uno'), i2=out.indexOf('dos'), i3=out.indexOf('tres');
+  const usaTodo=code.includes('setTimeout')&&(code.includes('.then')||code.includes('Promise'));
+  if(i1<0||i2<0||i3<0){ showFB('el4','warning','Ejecuta primero: deben aparecer uno, dos y tres en la salida.'); return; }
+  if(!usaTodo){ showFB('el4','warning','Debes usar obligatoriamente setTimeout y una promesa.'); return; }
+  if(i1<i2&&i2<i3){ showFB('el4','success','Orden perfecto: síncrono → microtarea → macrotarea.'+(award(35,'el4')?' (+35 XP)':'')); }
+  else { penalty(); showFB('el4','error','El orden de salida no es uno, dos, tres. Repasa qué cola se vacía antes.'); }
+}
+// ===== DEMO BURBUJEO (ev1) =====
+function setupBubbles(){
+  const out=()=>document.getElementById('ev1-out');
+  [['bub-nieto','NIETO'],['bub-padre','PADRE'],['bub-abuelo','ABUELO']].forEach(([id,nombre])=>{
+    const el=document.getElementById(id); if(!el)return;
+    el.addEventListener('click',()=>{
+      el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),450);
+      const l=document.createElement('div'); l.className='line'; l.textContent='→ listener de '+nombre;
+      out().appendChild(l);
+      if(nombre==='ABUELO'){
+        const fin=document.createElement('div'); fin.className='line info'; fin.textContent='(el evento llegó arriba: bubbling completo)';
+        out().appendChild(fin);
+        if(award(25,'ev1')) showFB('ev1','success','Demo completada: viste el burbujeo en directo. (+25 XP)');
+      }
+    });
+  });
+}
+// ===== XSS LAB (se2) =====
+let se2HizoInner=false, se2HizoText=false;
+function chkSE2(esInner){
+  if(esInner)se2HizoInner=true; else se2HizoText=true;
+  if(se2HizoInner&&se2HizoText){
+    if(award(30,'se2')) showFB('se2','success','Comparado: innerHTML interpretó tu HTML, textContent lo neutralizó. (+30 XP)');
+  }
+}
+// ===== ARIA ACCORDION (ay2) =====
+let ay2Abierto=false, ay2Cerrado=false;
+function toggleAY2(){
+  const btn=document.getElementById('ay2-btn'), panel=document.getElementById('ay2-panel');
+  const abierto=panel.style.display!=='none';
+  panel.style.display=abierto?'none':'block';
+  btn.setAttribute('aria-expanded',String(!abierto));
+  btn.textContent=(abierto?'▸':'▾')+' Detalles del pedido';
+  const out=document.getElementById('ay2-out');
+  const l=document.createElement('div'); l.className='line';
+  l.textContent='// Estado ARIA actual: aria-expanded="'+(!abierto)+'"';
+  out.appendChild(l);
+  if(!abierto)ay2Abierto=true; else ay2Cerrado=true;
+}
+function chkAY2(){
+  if(ay2Abierto&&ay2Cerrado){
+    if(award(30,'ay2')) showFB('ay2','success','aria-expanded sincronizado en ambos sentidos: así se hace. (+30 XP)');
+    else showFB('ay2','success','Ya completado anteriormente.');
+  } else showFB('ay2','warning','Abre Y cierra el acordeón observando cómo cambia el atributo.');
+}
+// ===== MUTATION OBSERVER DEMO (ob1) =====
+let ob1Tipos=new Set();
+function setupOb1(){
+  const caja=document.getElementById('ob1-caja'); if(!caja)return;
+  const out=document.getElementById('ob1-out');
+  const nombres={childList:'childList (nodos añadidos/quitados)',attributes:'attributes (atributo cambiado)',characterData:'characterData (texto cambiado)'};
+  const obs=new MutationObserver(ms=>ms.forEach(m=>{
+    const l=document.createElement('div'); l.className='line';
+    l.textContent='👁 mutación: '+(nombres[m.type]||m.type);
+    out.appendChild(l); out.scrollTop=out.scrollHeight;
+    ob1Tipos.add(m.type);
+    if(ob1Tipos.size>=3 && award(30,'ob1')) showFB('ob1','success','Has provocado los 3 tipos de mutación. (+30 XP)');
+  }));
+  obs.observe(caja,{childList:true,attributes:true,characterData:true,subtree:true});
+}
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',()=>{
+  loadProgress();
+  setupDrag('th2-pool','th2-target');
+  setupDrag('fp3-pool','fp3-target');
+  setupBubbles();
+  setupOb1();
+});
+</script>
+</body>
+</html>
